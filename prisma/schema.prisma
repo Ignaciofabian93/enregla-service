@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Agency {
+  id       Int      @id @default(autoincrement())
+  name     String
+  branches Branch[]
+}
+
+model Branch {
+  id        Int     @id @default(autoincrement())
+  name      String
+  users     User[]
+  agency_id Int
+  agency    Agency  @relation(fields: [agency_id], references: [id])
+  labels    Label[]
+}
+
+model Role {
+  id   Int    @id @default(autoincrement())
+  name String
+}
+
+model User {
+  id        Int     @id @default(autoincrement())
+  name      String
+  rut       String  @unique
+  email     String  @unique
+  password  String
+  branch_id Int
+  branch    Branch  @relation(fields: [branch_id], references: [id])
+  labels    Label[]
+}
+
+model Vehicles {
+  id     Int     @id @default(autoincrement())
+  branch String  @unique
+  model  String
+  year   Int
+  Label  Label[]
+}
+
+model Supplies {
+  id       Int    @id @default(autoincrement())
+  category String
+  name     String
+  quantity Int
+}
+
+model Label {
+  id                Int      @id @default(autoincrement())
+  user_id           Int
+  user              User     @relation(fields: [user_id], references: [id])
+  date              DateTime @default(now())
+  has_vin           Boolean
+  has_logo          Boolean
+  has_vehicle_plate Boolean
+  vehicle_plate     String?
+  vin               String
+  vehicle_id        Int
+  vehicle           Vehicles @relation(fields: [vehicle_id], references: [id])
+  branch_id         Int
+  branch            Branch   @relation(fields: [branch_id], references: [id])
+  coordinates       String
+  labels_quantity   Int
+  purchase_number   String
+}
