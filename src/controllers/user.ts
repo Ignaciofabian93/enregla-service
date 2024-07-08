@@ -69,7 +69,7 @@ export const CreateUser = async (req: Request, res: Response) => {
   try {
     const { name, rut, email, password, branch_id } = req.body;
 
-    if (!name || !rut || !email || !password || !branch_id) return res.status(400).json({ error: "Faltan datos" });
+    if (!name || !rut || !email || !password) return res.status(400).json({ error: "Faltan datos" });
 
     const salt = await genSalt(10);
     const hashedPassword = await hash(password, salt);
@@ -80,12 +80,13 @@ export const CreateUser = async (req: Request, res: Response) => {
         rut,
         email,
         password: hashedPassword,
-        branch_id: Number(branch_id),
       },
     });
+    console.log("User: ", user);
 
     return res.status(201).json({ message: "Usuario creado", user });
   } catch (error) {
+    console.log("Error while creating user ", error);
     res.status(500).json({ error: error });
   }
 };
