@@ -1,9 +1,15 @@
 import { Router } from "express";
+import { Auth, GetUser, GetUsers, CreateUser, UpdateUser, DeleteUser } from "../controllers/user";
+import { IsAuthenticated } from "../middlewares/session";
 
 const user = Router();
 
-user.route("/auth").get();
-user.route("/user").get().post();
-user.route("/user/:id").get().put().delete();
+user.route("/auth").post(Auth);
+user.route("/user").get(IsAuthenticated, GetUsers).post(CreateUser);
+user
+  .route("/user/:id")
+  .get(IsAuthenticated, GetUser)
+  .put(IsAuthenticated, UpdateUser)
+  .delete(IsAuthenticated, DeleteUser);
 
 export default user;

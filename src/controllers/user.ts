@@ -26,11 +26,106 @@ export const Auth = async (req: Request, res: Response) => {
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
+export const GetUsers = async (req: Request, res: Response) => {
   try {
-    console.log("query: ", req.query);
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        rut: true,
+        email: true,
+        branch: true,
+      },
+    });
 
-    return res.status(200).json({ message: "OK" });
+    return res.status(200).json({ users });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+};
+
+export const GetUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { id: Number(id) },
+      select: {
+        id: true,
+        name: true,
+        rut: true,
+        email: true,
+        branch: true,
+      },
+    });
+
+    return res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+};
+
+export const CreateUser = async (req: Request, res: Response) => {
+  try {
+    const { name, rut, email, password, branch_id } = req.body;
+
+    if (!name || !rut || !email || !password || !branch_id) return res.status(400).json({ error: "Faltan datos" });
+
+    const salt = await genSalt(10);
+    const hashedPassword = await hash(password, salt);
+
+    const user = await prisma.user.create({
+      data: {
+        name,
+        rut,
+        email,
+        password: hashedPassword,
+        branch_id: Number(branch_id),
+      },
+    });
+
+    return res.status(201).json({ message: "Usuario creado", user });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+};
+
+export const UpdateUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { name, rut, email, password, branch_id } = req.body;
+
+    if (!name || !rut || !email || !password || !branch_id) return res.status(400).json({ error: "Faltan datos" });
+
+    const salt = await genSalt(10);
+    const hashedPassword = await hash(password, salt);
+
+    const user = await prisma.user.update({
+      where: { id: Number(id) },
+      data: {
+        name,
+        rut,
+        email,
+        password: hashedPassword,
+        branch_id: Number(branch_id),
+      },
+    });
+
+    return res.status(200).json({ message: "Usuario actualizado", user });
+  } catch (error) {
+    res.status(500).json({ error: error });
+  }
+};
+
+export const DeleteUser = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    const user = await prisma.user.delete({
+      where: { id: Number(id) },
+    });
+
+    return res.status(200).json({ message: "Usuario eliminado", user });
   } catch (error) {
     res.status(500).json({ error: error });
   }

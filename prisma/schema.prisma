@@ -34,7 +34,7 @@ model User {
   email     String  @unique
   password  String
   branch_id Int
-  branch    Branch  @relation(fields: [branch_id], references: [id])
+  branch    Branch?  @relation(fields: [branch_id], references: [id])
   labels    Label[]
 }
 

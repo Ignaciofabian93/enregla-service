@@ -2,12 +2,11 @@ import http from "http";
 import express from "express";
 import cors from "cors";
 import { config } from "dotenv";
+import { port, protocol } from "./config/environment";
 
 import user from "./routes/user";
 
 config();
-
-const port = process.env.PORT || 4000;
 
 const app = express();
 
@@ -24,5 +23,5 @@ app.use("/", user);
 const server = http.createServer(app);
 
 server.listen(port, () => {
-  console.log(`http://localhost:${port}`);
+  console.log(`${protocol}://localhost:${port}`);
 });
