@@ -28,13 +28,16 @@ export const Auth = async (req: Request, res: Response) => {
 
 export const GetUsers = async (req: Request, res: Response) => {
   try {
+    const query = req.query;
+    console.log("Query: ", query);
     const users = await prisma.user.findMany({
       select: {
         id: true,
         name: true,
         rut: true,
         email: true,
-        branch: true,
+        branch: { select: { id: true, name: true, location: true } },
+        role: { select: { id: true, name: true } },
       },
     });
 
@@ -55,7 +58,8 @@ export const GetUser = async (req: Request, res: Response) => {
         name: true,
         rut: true,
         email: true,
-        branch: true,
+        branch: { select: { id: true, name: true, location: true } },
+        role: { select: { id: true, name: true } },
       },
     });
 
@@ -67,9 +71,10 @@ export const GetUser = async (req: Request, res: Response) => {
 
 export const CreateUser = async (req: Request, res: Response) => {
   try {
-    const { name, rut, email, password, branch_id } = req.body;
+    const { name, rut, email, password, branch_id, role_id } = req.body;
 
-    if (!name || !rut || !email || !password || !branch_id) return res.status(400).json({ error: "Faltan datos" });
+    if (!name || !rut || !email || !password || !branch_id || !role_id)
+      return res.status(400).json({ error: "Faltan datos" });
 
     const salt = await genSalt(10);
     const hashedPassword = await hash(password, salt);
@@ -81,6 +86,7 @@ export const CreateUser = async (req: Request, res: Response) => {
         email,
         password: hashedPassword,
         branch_id: Number(branch_id),
+        role_id: Number(role_id),
       },
     });
     console.log("User: ", user);
@@ -95,9 +101,9 @@ export const CreateUser = async (req: Request, res: Response) => {
 export const UpdateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { name, rut, email, password, branch_id } = req.body;
+    const { email, password, branch_id, role_id } = req.body;
 
-    if (!name || !rut || !email || !password || !branch_id) return res.status(400).json({ error: "Faltan datos" });
+    if (!email || !password || !branch_id || role_id) return res.status(400).json({ error: "Faltan datos" });
 
     const salt = await genSalt(10);
     const hashedPassword = await hash(password, salt);
@@ -105,15 +111,14 @@ export const UpdateUser = async (req: Request, res: Response) => {
     const user = await prisma.user.update({
       where: { id: Number(id) },
       data: {
-        name,
-        rut,
         email,
         password: hashedPassword,
         branch_id: Number(branch_id),
+        role_id: Number(role_id),
       },
     });
 
-    return res.status(200).json({ message: "Usuario actualizado", user });
+    return res.status(201).json({ message: "Usuario actualizado", user });
   } catch (error) {
     res.status(500).json({ error: error });
   }

@@ -14,36 +14,43 @@ model Agency {
 }
 
 model Branch {
-  id        Int     @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   name      String
-  users     User[]
   agency_id Int
-  agency    Agency  @relation(fields: [agency_id], references: [id])
+  location  String
+  agency    Agency     @relation(fields: [agency_id], references: [id])
   labels    Label[]
+  users     User[]
+  vehicles  Vehicles[]
 }
 
 model Role {
-  id   Int    @id @default(autoincrement())
-  name String
+  id    Int    @id @default(autoincrement())
+  name  String @db.VarChar(50)
+  users User[]
 }
 
 model User {
   id        Int     @id @default(autoincrement())
-  name      String
-  rut       String  @unique
-  email     String  @unique
-  password  String
-  branch_id Int
-  branch    Branch?  @relation(fields: [branch_id], references: [id])
+  name      String  @db.VarChar(250)
+  rut       String  @unique @db.VarChar(12)
+  email     String  @unique @db.VarChar(250)
+  password  String  @db.VarChar(50)
   labels    Label[]
+  branch_id Int
+  branch    Branch  @relation(fields: [branch_id], references: [id])
+  role_id   Int
+  role      Role    @relation(fields: [role_id], references: [id])
 }
 
 model Vehicles {
-  id     Int     @id @default(autoincrement())
-  branch String  @unique
-  model  String
-  year   Int
-  Label  Label[]
+  id        Int     @id @default(autoincrement())
+  brand     String  @unique @db.VarChar(250)
+  model     String  @db.VarChar(250)
+  year      Int
+  branch_id Int
+  branch    Branch  @relation(fields: [branch_id], references: [id])
+  labels    Label[]
 }
 
 model Supplies {
@@ -55,19 +62,19 @@ model Supplies {
 
 model Label {
   id                Int      @id @default(autoincrement())
-  user_id           Int
-  user              User     @relation(fields: [user_id], references: [id])
   date              DateTime @default(now())
   has_vin           Boolean
   has_logo          Boolean
   has_vehicle_plate Boolean
   vehicle_plate     String?
   vin               String
-  vehicle_id        Int
-  vehicle           Vehicles @relation(fields: [vehicle_id], references: [id])
-  branch_id         Int
-  branch            Branch   @relation(fields: [branch_id], references: [id])
   coordinates       String
   labels_quantity   Int
   purchase_number   String
+  branch_id         Int
+  branch            Branch   @relation(fields: [branch_id], references: [id])
+  user_id           Int
+  user              User     @relation(fields: [user_id], references: [id])
+  vehicle_id        Int
+  vehicle           Vehicles @relation(fields: [vehicle_id], references: [id])
 }

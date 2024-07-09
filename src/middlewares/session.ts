@@ -12,6 +12,8 @@ export const IsAuthenticated = async (req: CustomRequest, res: Response, next: N
 
   try {
     const decoded = verify(token, process.env.JWT_SECRET as string);
+    console.log("Decoded: ", decoded);
+
     // req.user = decoded
     next();
   } catch (error) {
