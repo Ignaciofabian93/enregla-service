@@ -36,7 +36,10 @@ export const GetUsers = async (req: Request, res: Response) => {
         name: true,
         rut: true,
         email: true,
-        branch: { select: { id: true, name: true, location: true } },
+        branch: {
+          select: { id: true, location: true, municipality: true, address: true, telephone: true },
+          include: { agency: { select: { id: true, name: true } } },
+        },
         role: { select: { id: true, name: true } },
       },
     });
@@ -58,7 +61,10 @@ export const GetUser = async (req: Request, res: Response) => {
         name: true,
         rut: true,
         email: true,
-        branch: { select: { id: true, name: true, location: true } },
+        branch: {
+          select: { id: true, location: true, municipality: true, address: true, telephone: true },
+          include: { agency: { select: { id: true, name: true } } },
+        },
         role: { select: { id: true, name: true } },
       },
     });
