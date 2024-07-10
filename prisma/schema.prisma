@@ -9,19 +9,21 @@ datasource db {
 
 model Agency {
   id       Int      @id @default(autoincrement())
-  name     String
+  name     String   @db.VarChar(250)
   branches Branch[]
 }
 
 model Branch {
-  id        Int        @id @default(autoincrement())
-  name      String
-  agency_id Int
-  location  String
-  agency    Agency     @relation(fields: [agency_id], references: [id])
-  labels    Label[]
-  users     User[]
-  vehicles  Vehicles[]
+  id           Int        @id @default(autoincrement())
+  agency_id    Int
+  location     String     @db.VarChar(250)
+  address      String     @db.VarChar(250)
+  municipality String     @db.VarChar(100)
+  telephone    String?    @db.VarChar(250)
+  agency       Agency     @relation(fields: [agency_id], references: [id])
+  labels       Label[]
+  users        User[]
+  vehicles     Vehicles[]
 }
 
 model Role {
@@ -36,45 +38,48 @@ model User {
   rut       String  @unique @db.VarChar(12)
   email     String  @unique @db.VarChar(250)
   password  String  @db.VarChar(50)
-  labels    Label[]
   branch_id Int
-  branch    Branch  @relation(fields: [branch_id], references: [id])
   role_id   Int
+  labels    Label[]
+  branch    Branch  @relation(fields: [branch_id], references: [id])
   role      Role    @relation(fields: [role_id], references: [id])
 }
 
 model Vehicles {
   id        Int     @id @default(autoincrement())
-  brand     String  @unique @db.VarChar(250)
   model     String  @db.VarChar(250)
   year      Int
   branch_id Int
-  branch    Branch  @relation(fields: [branch_id], references: [id])
+  brand     String  @unique @db.VarChar(250)
   labels    Label[]
+  branch    Branch  @relation(fields: [branch_id], references: [id])
 }
 
 model Supplies {
   id       Int    @id @default(autoincrement())
-  category String
-  name     String
+  category String @db.VarChar(250)
+  name     String @db.VarChar(250)
   quantity Int
+  price    Int
 }
 
 model Label {
   id                Int      @id @default(autoincrement())
+  user_id           Int
   date              DateTime @default(now())
+  price             Int
   has_vin           Boolean
   has_logo          Boolean
   has_vehicle_plate Boolean
-  vehicle_plate     String?
-  vin               String
-  coordinates       String
-  labels_quantity   Int
-  purchase_number   String
-  branch_id         Int
-  branch            Branch   @relation(fields: [branch_id], references: [id])
-  user_id           Int
-  user              User     @relation(fields: [user_id], references: [id])
+  vehicle_plate     String?  @db.VarChar(250)
+  vin               String?  @db.VarChar(250)
   vehicle_id        Int
+  branch_id         Int
+  coordinates       String   @db.VarChar(250)
+  labels_quantity   Int
+  purchase_number   String   @db.VarChar(250)
+  logo              String?  @db.VarChar(100)
+  branch            Branch   @relation(fields: [branch_id], references: [id])
+  user              User     @relation(fields: [user_id], references: [id])
   vehicle           Vehicles @relation(fields: [vehicle_id], references: [id])
 }
