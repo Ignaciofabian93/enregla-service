@@ -35,9 +35,9 @@ model Role {
 model User {
   id        Int     @id @default(autoincrement())
   name      String  @db.VarChar(250)
-  rut       String  @unique @db.VarChar(12)
+  rut       String  @unique @db.VarChar(50)
   email     String  @unique @db.VarChar(250)
-  password  String  @db.VarChar(50)
+  password  String  @db.VarChar(250)
   branch_id Int
   role_id   Int
   labels    Label[]
