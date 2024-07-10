@@ -67,7 +67,6 @@ model Label {
   id                Int      @id @default(autoincrement())
   user_id           Int
   date              DateTime @default(now())
-  price             Int
   has_vin           Boolean
   has_logo          Boolean
   has_vehicle_plate Boolean
@@ -79,6 +78,7 @@ model Label {
   labels_quantity   Int
   purchase_number   String   @db.VarChar(250)
   logo              String?  @db.VarChar(100)
+  price             Int
   branch            Branch   @relation(fields: [branch_id], references: [id])
   user              User     @relation(fields: [user_id], references: [id])
   vehicle           Vehicles @relation(fields: [vehicle_id], references: [id])

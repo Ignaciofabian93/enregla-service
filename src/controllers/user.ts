@@ -82,6 +82,8 @@ export const CreateUser = async (req: Request, res: Response) => {
     if (!name || !rut || !email || !password || !branch_id || !role_id)
       return res.status(400).json({ error: "Faltan datos" });
 
+    console.log(name, rut, email, password, branch_id, role_id);
+
     const salt = await genSalt(10);
     const hashedPassword = await hash(password, salt);
 
@@ -95,6 +97,7 @@ export const CreateUser = async (req: Request, res: Response) => {
         role_id: Number(role_id),
       },
     });
+    if (!user) return res.status(400).json({ error: "Error al crear usuario" });
     console.log("User: ", user);
 
     return res.status(201).json({ message: "Usuario creado", user });
