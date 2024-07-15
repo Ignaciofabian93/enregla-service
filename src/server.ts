@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import { port, protocol } from "./config/environment";
 
 import user from "./routes/user";
+import supplies from "./routes/supplies";
 
 config();
 
@@ -19,6 +20,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/", user);
+app.use("/", supplies);
 
 const server = http.createServer(app);
 

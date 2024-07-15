@@ -6,12 +6,33 @@ import prisma from "../client/prismaclient";
 export const Auth = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    console.log(email, password);
 
     if (!email || !password) return res.status(400).json({ error: "Credenciales incompletas" });
     const user = await prisma.user.findUnique({
       where: { email },
+      select: {
+        id: true,
+        name: true,
+        rut: true,
+        email: true,
+        password: true,
+        branch: {
+          select: {
+            id: true,
+            location: true,
+            municipality: true,
+            address: true,
+            telephone: true,
+            agency: { select: { id: true, name: true } },
+          },
+        },
+        role: { select: { id: true, name: true } },
+      },
     });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    console.log(user);
 
     const isMatch = await compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Contraseña incorrecta" });
@@ -22,6 +43,7 @@ export const Auth = async (req: Request, res: Response) => {
 
     return res.status(200).json({ user, token });
   } catch (error) {
+    console.log("Error while trying to authenticate user: ", error);
     res.status(500).json({ error: error });
   }
 };
