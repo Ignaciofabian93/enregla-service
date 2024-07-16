@@ -5,7 +5,7 @@ import { IsAuthenticated } from "../middlewares/session";
 const user = Router();
 
 user.route("/auth").post(Auth);
-user.route("/user").get(IsAuthenticated, GetUsers).post(CreateUser);
+user.route("/user").get(GetUsers).post(CreateUser);
 user
   .route("/user/:id")
   .get(IsAuthenticated, GetUser)

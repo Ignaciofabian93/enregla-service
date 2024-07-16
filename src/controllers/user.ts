@@ -50,8 +50,9 @@ export const Auth = async (req: Request, res: Response) => {
 
 export const GetUsers = async (req: Request, res: Response) => {
   try {
-    const query = req.query;
-    console.log("Query: ", query);
+    const { page, rows } = req.query;
+    console.log("Query: ", page, rows);
+    const count = await prisma.user.count();
     const users = await prisma.user.findMany({
       select: {
         id: true,
@@ -59,15 +60,17 @@ export const GetUsers = async (req: Request, res: Response) => {
         rut: true,
         email: true,
         branch: {
-          select: { id: true, location: true, municipality: true, address: true, telephone: true },
-          include: { agency: { select: { id: true, name: true } } },
+          select: { id: true, location: true, municipality: true, address: true, telephone: true, agency: true },
         },
         role: { select: { id: true, name: true } },
       },
+      skip: (Number(page) - 1) * Number(rows),
+      take: Number(rows),
     });
 
-    return res.status(200).json({ users });
+    return res.status(200).json({ users, count });
   } catch (error) {
+    console.log("Error while getting users: ", error);
     res.status(500).json({ error: error });
   }
 };

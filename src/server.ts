@@ -6,6 +6,8 @@ import { port, protocol } from "./config/environment";
 
 import user from "./routes/user";
 import supplies from "./routes/supplies";
+import agency from "./routes/agency";
+import branch from "./routes/branch";
 
 config();
 
@@ -21,6 +23,8 @@ app.get("/", (req, res) => {
 
 app.use("/", user);
 app.use("/", supplies);
+app.use("/", agency);
+app.use("/", branch);
 
 const server = http.createServer(app);
 
