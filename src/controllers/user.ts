@@ -2,15 +2,20 @@ import { Request, Response } from "express";
 import { compare, hash, genSalt } from "bcrypt";
 import { sign } from "jsonwebtoken";
 import prisma from "../client/prismaclient";
+import { User } from "../types/user";
+
+type CustomRequest = Request & {
+  user?: User;
+};
 
 export const Auth = async (req: Request, res: Response) => {
   try {
-    const { email, password } = req.body;
-    console.log(email, password);
+    const { rut, password } = req.body;
 
-    if (!email || !password) return res.status(400).json({ error: "Credenciales incompletas" });
+    if (!rut || !password) return res.status(400).json({ error: "Credenciales incompletas" });
+
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: { rut },
       select: {
         id: true,
         name: true,
@@ -32,8 +37,6 @@ export const Auth = async (req: Request, res: Response) => {
     });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
 
-    console.log(user);
-
     const isMatch = await compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Contraseña incorrecta" });
 
@@ -48,19 +51,28 @@ export const Auth = async (req: Request, res: Response) => {
   }
 };
 
-export const GetUsers = async (req: Request, res: Response) => {
+export const GetUsers = async (req: CustomRequest, res: Response) => {
   try {
     const { page, rows } = req.query;
+    const { user } = req;
     console.log("Query: ", page, rows);
     const count = await prisma.user.count();
     const users = await prisma.user.findMany({
+      where: { id: { not: (user as User).id } },
       select: {
         id: true,
         name: true,
         rut: true,
         email: true,
         branch: {
-          select: { id: true, location: true, municipality: true, address: true, telephone: true, agency: true },
+          select: {
+            id: true,
+            location: true,
+            municipality: true,
+            address: true,
+            telephone: true,
+            agency: true,
+          },
         },
         role: { select: { id: true, name: true } },
       },
