@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { CustomRequest } from "../types/request";
 import prisma from "../client/prismaclient";
 
 export const GetBranches = async (req: Request, res: Response) => {
