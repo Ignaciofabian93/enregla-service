@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { compare, hash, genSalt } from "bcrypt";
 import { sign } from "jsonwebtoken";
+import { User } from "./user.types";
 import prisma from "../client/prismaclient";
-import { User } from "../types/user";
 
 type CustomRequest = Request & {
   user?: User;
@@ -149,7 +149,8 @@ export const UpdateUser = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { email, password, branch_id, role_id } = req.body;
 
-    if (!email || !password || !branch_id || role_id) return res.status(400).json({ error: "Faltan datos" });
+    if (!email || !password || !branch_id || role_id)
+      return res.status(400).json({ error: "Faltan datos" });
 
     const salt = await genSalt(10);
     const hashedPassword = await hash(password, salt);

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Auth, GetUser, GetUsers, CreateUser, UpdateUser, DeleteUser } from "../controllers/user";
+import { Auth, GetUser, GetUsers, CreateUser, UpdateUser, DeleteUser } from "./user.controller";
 import { IsAuthenticated, IsAuthorized } from "../middlewares/session";
 
 const user = Router();
