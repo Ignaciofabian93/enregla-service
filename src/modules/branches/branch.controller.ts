@@ -2,9 +2,23 @@ import { Request, Response } from "express";
 import { Branch } from "./branch.type";
 import prisma from "../../client/prismaclient";
 
+export const GetAllBranches = async (req: Request, res: Response) => {
+  try {
+    const branches: Branch[] = await prisma.branch.findMany();
+
+    if (!branches) return res.status(404).json({ error: "No hay sucursales guardadas" });
+
+    res.status(200).json({ branches });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
 export const GetBranches = async (req: Request, res: Response) => {
   try {
     const { page, rows } = req.query;
+
+    const count: number = await prisma.branch.count();
     const branches: Branch[] = await prisma.branch.findMany({
       skip: (Number(page) - 1) * Number(rows),
       take: Number(rows),
@@ -12,7 +26,7 @@ export const GetBranches = async (req: Request, res: Response) => {
 
     if (!branches) return res.status(404).json({ error: "No hay sucursales guardadas" });
 
-    res.status(200).json({ branches });
+    res.status(200).json({ branches, count });
   } catch (error) {
     res.status(500).json({ error });
   }

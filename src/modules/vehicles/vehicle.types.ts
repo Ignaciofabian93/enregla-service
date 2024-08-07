@@ -1,6 +1,7 @@
 export type VehicleBrands = {
   id: number;
   brand: string;
+  logo: string;
 };
 
 export type VehicleModels = {

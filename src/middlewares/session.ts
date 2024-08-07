@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { JwtPayload, verify } from "jsonwebtoken";
-import { User } from "../types/user";
+import { User } from "../modules/users/user.types";
 import { allowed_user_roles } from "../constants/roles";
 import prisma from "../client/prismaclient";
 

@@ -5,10 +5,12 @@ import {
   GetBranch,
   GetBranches,
   UpdateBranch,
+  GetAllBranches,
 } from "./branch.controller";
 
 const branch = Router();
 
+branch.route("/branches").get(GetAllBranches);
 branch.route("/branch").get(GetBranches).post(CreateBranch);
 branch.route("/branch/:id").get(GetBranch).put(UpdateBranch).delete(DeleteBranch);
 
