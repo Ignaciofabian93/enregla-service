@@ -7,6 +7,7 @@ import vehicle from "./modules/vehicles/vehicle.route";
 import label from "./modules/labels/label.route";
 import branch from "./modules/branches/branch.route";
 import supply from "./modules/supplies/supply.route";
+import agency from "./modules/agencies/agency.route";
 
 import { config } from "dotenv";
 config();
@@ -28,6 +29,7 @@ app.use("/api", vehicle);
 app.use("/api", label);
 app.use("/api", supply);
 app.use("/api", branch);
+app.use("/api", agency);
 
 const server = http.createServer(app);
 

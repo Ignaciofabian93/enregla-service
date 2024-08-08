@@ -14,14 +14,32 @@ model Agency {
 }
 
 model Branch {
-  id           Int     @id @default(autoincrement())
-  agency_id    Int
-  location     String  @db.VarChar(250)
-  address      String  @db.VarChar(250)
-  telephone    String? @db.VarChar(250)
-  agency       Agency  @relation(fields: [agency_id], references: [id])
-  labels       Label[]
-  users        User[]
+  id             Int            @id @default(autoincrement())
+  agency_id      Int
+  location       String         @db.VarChar(250)
+  address        String         @db.VarChar(250)
+  telephone      String?        @db.VarChar(250)
+  agency         Agency         @relation(fields: [agency_id], references: [id])
+  labels         Label[]
+  users          User[]
+  branchSupplies BranchSupply[]
+}
+
+model BranchSupply {
+  id        Int      @id @default(autoincrement())
+  branch_id Int
+  supply_id Int
+  quantity  Int
+  branch    Branch   @relation(fields: [branch_id], references: [id])
+  supply    Supplies @relation(fields: [supply_id], references: [id])
+}
+
+model Supplies {
+  id             Int            @id @default(autoincrement())
+  name           String         @db.VarChar(250)
+  quantity       Int
+  price          Int
+  branchSupplies BranchSupply[]
 }
 
 model Role {
@@ -46,7 +64,7 @@ model User {
 model VehicleBrands {
   id    Int             @id @default(autoincrement())
   brand String          @unique @db.VarChar(250)
-  logo  String          
+  logo  String
   model VehicleModels[]
 }
 
@@ -55,13 +73,6 @@ model VehicleModels {
   model    String        @db.VarChar(250)
   brand_id Int
   brand    VehicleBrands @relation(fields: [brand_id], references: [id])
-}
-
-model Supplies {
-  id       Int    @id @default(autoincrement())
-  name     String @db.VarChar(250)
-  quantity Int
-  price    Int
 }
 
 model Label {
