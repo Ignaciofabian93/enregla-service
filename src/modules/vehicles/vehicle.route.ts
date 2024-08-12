@@ -1,16 +1,9 @@
 import { Router } from "express";
-import {
-  GetBrands,
-  GetModels,
-  GetVehicles,
-  SaveVehicle,
-  UpdateVehicle,
-} from "./vehicle.controller";
+import { DeleteVehicle, GetVehicles, SaveVehicle, UpdateVehicle } from "./vehicle.controller";
 
 const vehicle = Router();
 
-vehicle.route("/vehicle").get(GetVehicles).post(SaveVehicle).put(UpdateVehicle);
-vehicle.route("/vehicle/brand").get(GetBrands);
-vehicle.route("/vehicle/model").get(GetModels);
+vehicle.route("/vehicle").get(GetVehicles).post(SaveVehicle);
+vehicle.route("/vehicle/:id").put(UpdateVehicle).delete(DeleteVehicle);
 
 export default vehicle;
