@@ -20,7 +20,9 @@ export const GetBranches = async (req: Request, res: Response) => {
   try {
     const { page, rows } = req.query;
 
-    const count: number = await prisma.branch.count();
+    const count: number = await prisma.branch.count({
+      where: { location: { not: "-33.415109, -70.591094" } },
+    });
     const branches: Branch[] = await prisma.branch.findMany({
       where: { location: { not: "-33.415109, -70.591094" } },
       include: { agency: true, labels: true, users: { select: { id: true, rut: true } } },

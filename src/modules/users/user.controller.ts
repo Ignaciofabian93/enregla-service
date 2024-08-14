@@ -15,23 +15,13 @@ export const Auth = async (req: Request, res: Response) => {
     if (!rut || !password) return res.status(400).json({ error: "Credenciales incompletas" });
 
     const user = await prisma.user.findUnique({
-      where: { rut },
+      where: { rut, AND: { rut: "12345678-9" } },
       select: {
         id: true,
         name: true,
         rut: true,
         email: true,
         password: true,
-        branch: {
-          select: {
-            id: true,
-            location: true,
-            address: true,
-            telephone: true,
-            agency: { select: { id: true, name: true } },
-          },
-        },
-        role: { select: { id: true, name: true } },
       },
     });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
@@ -54,8 +44,9 @@ export const GetUsers = async (req: CustomRequest, res: Response) => {
   try {
     const { page, rows } = req.query;
     const { user } = req;
-    console.log("Query: ", page, rows);
-    const count = await prisma.user.count();
+    const count = await prisma.user.count({
+      where: { id: { not: (user as User).id } },
+    });
     const users = await prisma.user.findMany({
       where: { id: { not: (user as User).id } },
       select: {
@@ -66,10 +57,7 @@ export const GetUsers = async (req: CustomRequest, res: Response) => {
         branch: {
           select: {
             id: true,
-            location: true,
             address: true,
-            telephone: true,
-            agency: true,
           },
         },
         role: { select: { id: true, name: true } },
@@ -78,7 +66,15 @@ export const GetUsers = async (req: CustomRequest, res: Response) => {
       take: Number(rows),
     });
 
-    return res.status(200).json({ users, count });
+    const formattedUsers = users.map((user) => ({
+      ...user,
+      branch_id: user.branch.id,
+      branch: user.branch.address,
+      role_id: user.role.id,
+      role: user.role.name,
+    }));
+
+    return res.status(200).json({ users: formattedUsers, count });
   } catch (error) {
     console.log("Error while getting users: ", error);
     res.status(500).json({ error: error });
