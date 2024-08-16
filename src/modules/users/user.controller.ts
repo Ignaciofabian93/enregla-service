@@ -40,6 +40,16 @@ export const Auth = async (req: Request, res: Response) => {
   }
 };
 
+export const GetMe = async (req: CustomRequest, res: Response) => {
+  try {
+    const { user } = req;
+    return res.status(200).json({ user });
+  } catch (error) {
+    console.log("Error while getting user: ", error);
+    res.status(500).json({ error: error });
+  }
+};
+
 export const GetUsers = async (req: CustomRequest, res: Response) => {
   try {
     const { page, rows } = req.query;

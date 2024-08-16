@@ -36,6 +36,7 @@ model BranchSupply {
 
 model Supplies {
   id             Int            @id @default(autoincrement())
+  category       String
   name           String         @db.VarChar(250)
   quantity       Int
   price          Int

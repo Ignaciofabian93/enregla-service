@@ -23,7 +23,7 @@ export const GetBranches = async (req: Request, res: Response) => {
     const count: number = await prisma.branch.count({
       where: { location: { not: "-33.415109, -70.591094" } },
     });
-    const branches: Branch[] = await prisma.branch.findMany({
+    const branches = await prisma.branch.findMany({
       where: { location: { not: "-33.415109, -70.591094" } },
       include: { agency: true, labels: true, users: { select: { id: true, rut: true } } },
       skip: (Number(page) - 1) * Number(rows),
@@ -32,7 +32,13 @@ export const GetBranches = async (req: Request, res: Response) => {
 
     if (!branches) return res.status(404).json({ error: "No hay sucursales guardadas" });
 
-    res.status(200).json({ branches, count });
+    const formattedBranches = branches.map((branch) => ({
+      ...branch,
+      agency_id: branch.agency.id,
+      agency: branch.agency.name,
+    }));
+
+    res.status(200).json({ branches: formattedBranches, count });
   } catch (error) {
     res.status(500).json({ error });
   }
