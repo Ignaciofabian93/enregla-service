@@ -49,6 +49,49 @@ export const GetSupplies = async (req: Request, res: Response) => {
   }
 };
 
+export const GetSupplyList = async (req: Request, res: Response) => {
+  try {
+    const supplies = await prisma.branchSupply.findMany({
+      include: {
+        branch: {
+          select: {
+            id: true,
+            agency: {
+              select: { name: true },
+            },
+            address: true,
+          },
+        },
+        supply: {
+          select: {
+            id: true,
+            category: true,
+            name: true,
+            quantity: true,
+            price: true,
+          },
+        },
+      },
+    });
+
+    if (!supplies) return res.status(404).json({ error: "No hay insumos" });
+
+    const formattedSupplies = supplies.map((supply) => ({
+      id: supply.id,
+      agency: supply.branch.agency.name,
+      branch: supply.branch.address,
+      category: supply.supply.category,
+      name: supply.supply.name,
+      quantity: supply.supply.quantity,
+      price: supply.supply.price,
+    }));
+
+    res.status(200).json({ supplies: formattedSupplies });
+  } catch (error) {
+    res.status(500).json({ error });
+  }
+};
+
 export const GetSupply = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
