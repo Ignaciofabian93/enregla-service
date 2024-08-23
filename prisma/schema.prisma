@@ -67,6 +67,7 @@ model VehicleBrands {
   brand  String          @unique @db.VarChar(250)
   logo   String
   models VehicleModels[]
+  labels Label[]
 }
 
 model VehicleModels {
@@ -74,26 +75,29 @@ model VehicleModels {
   model    String        @db.VarChar(250)
   brand_id Int
   brand    VehicleBrands @relation(fields: [brand_id], references: [id])
+  labels   Label[]
 }
 
 model Label {
-  id              Int      @id @default(autoincrement())
-  user_id         Int
-  date            DateTime @default(now())
-  branch_id       Int
-  label_quantity  Int
-  purchase_number String
-  price           Int
-  vehicle_brand   String
-  vehicle_model   String
-  vehicle_year    String
-  show_vin        Boolean
-  vehicle_vin     String
-  show_plate      Boolean
-  vehicle_plate   String
-  show_logo       Boolean
-  vehicle_logo    String
-  location        String
-  branch          Branch   @relation(fields: [branch_id], references: [id])
-  user            User     @relation(fields: [user_id], references: [id])
+  id               Int      @id @default(autoincrement())
+  user_id          Int
+  date             String
+  branch_id        Int
+  label_quantity   Int
+  wrong_labels     Int
+  purchase_number  String
+  price            Int
+  vehicle_brand_id Int
+  vehicle_model_id Int
+  vehicle_year     String
+  show_vin         Boolean
+  vehicle_vin      String
+  show_plate       Boolean
+  vehicle_plate    String
+  show_logo        Boolean
+  coordinates      String
+  VehicleBrand     VehicleBrands @relation(fields: [vehicle_brand_id], references: [id])
+  VehicleModel     VehicleModels @relation(fields: [vehicle_model_id], references: [id])
+  branch           Branch   @relation(fields: [branch_id], references: [id])
+  user             User     @relation(fields: [user_id], references: [id])
 }

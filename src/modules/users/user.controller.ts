@@ -15,13 +15,14 @@ export const Auth = async (req: Request, res: Response) => {
     if (!rut || !password) return res.status(400).json({ error: "Credenciales incompletas" });
 
     const user = await prisma.user.findUnique({
-      where: { rut, AND: { rut: "12345678-9" } },
+      where: { rut },
       select: {
         id: true,
         name: true,
         rut: true,
         email: true,
         password: true,
+        branch_id: true,
       },
     });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });

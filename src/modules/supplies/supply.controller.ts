@@ -50,8 +50,10 @@ export const GetSupplies = async (req: Request, res: Response) => {
 };
 
 export const GetSupplyList = async (req: Request, res: Response) => {
+  const { branch_id } = req.query;
   try {
     const supplies = await prisma.branchSupply.findMany({
+      where: { branch_id: Number(branch_id) },
       include: {
         branch: {
           select: {
