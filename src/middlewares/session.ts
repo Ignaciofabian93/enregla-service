@@ -18,9 +18,13 @@ export const IsAuthenticated = async (req: CustomRequest, res: Response, next: N
 
     const { id } = decoded as JwtPayload;
 
+    console.log("ID: ", id);
+
     const findUser = await prisma.user.findFirst({
       where: { id },
     });
+    console.log("Find user: ", findUser);
+
     req.user = findUser as User;
     next();
   } catch (error) {

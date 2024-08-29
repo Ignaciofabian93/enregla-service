@@ -21,6 +21,8 @@ export const GetLabels = async (req: Request, res: Response) => {
 export const GetAllLabels = async (req: Request, res: Response) => {
   try {
     const { user } = req.body;
+    console.log("User: ", user);
+
     const labels = await prisma.label.findMany({
       where: {
         user_id: Number(user.id),
