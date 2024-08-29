@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import prisma from "../../client/prismaclient";
+import { Label } from "./label.types";
 
 export const GetLabels = async (req: Request, res: Response) => {
   try {
@@ -37,56 +38,47 @@ export const GetAllLabels = async (req: Request, res: Response) => {
 
 export const SaveLabel = async (req: Request, res: Response) => {
   try {
-    const { label } = req.body;
+    const { labels } = req.body;
 
-    const {
-      user_id,
-      date,
-      branch_id,
-      label_quantity,
-      wrong_labels,
-      purchase_number,
-      price,
-      coordinates,
-      vehicle_brand_id,
-      vehicle_model_id,
-      vehicle_year,
-      show_vin,
-      show_plate,
-      show_logo,
-      vehicle_vin,
-      vehicle_plate,
-    } = label;
-    if (!label) return res.status(400).json({ error: "Faltan datos" });
+    if (!labels || labels.length === 0) {
+      return res.status(400).json({ error: "No hay etiquetas para guardar" });
+    }
 
-    const new_label = await prisma.label.create({
-      data: {
-        user_id,
-        date,
-        branch_id,
-        label_quantity,
-        wrong_labels,
-        purchase_number,
-        price: Number(price),
-        coordinates,
-        vehicle_brand_id,
-        vehicle_model_id,
-        vehicle_year,
-        show_vin,
-        show_plate,
-        show_logo,
-        vehicle_vin,
-        vehicle_plate,
-      },
+    const newLabels = labels.map((label: Label) => ({
+      user_id: Number(label.user_id),
+      date: label.date,
+      branch_id: Number(label.branch_id),
+      label_quantity: Number(label.label_quantity),
+      wrong_labels: Number(label.wrong_labels),
+      purchase_number: label.purchase_number,
+      price: Number(label.price),
+      coordinates: label.coordinates,
+      vehicle_brand_id: Number(label.vehicle_brand_id),
+      vehicle_model_id: Number(label.vehicle_model_id),
+      vehicle_year: label.vehicle_year,
+      show_vin: label.show_vin,
+      show_plate: label.show_plate,
+      show_logo: label.show_logo,
+      vehicle_vin: label.vehicle_vin,
+      vehicle_plate: label.vehicle_plate,
+      print_type: label.print_type,
+      description: label.description,
+    }));
+
+    const createdLabels = await prisma.label.createMany({
+      data: newLabels,
     });
 
-    if (!new_label) return res.status(400).json({ error: "No se pudo guardar la etiqueta" });
+    if (!createdLabels.count) {
+      return res.status(400).json({ error: "No se pudieron guardar las etiquetas" });
+    }
 
-    res.status(200).json({ label, message: "Etiqueta guardada correctamente" });
+    res
+      .status(200)
+      .json({ count: createdLabels.count, message: "Etiquetas guardadas correctamente" });
   } catch (error) {
-    console.log("LABEL", error);
-
-    res.status(500).json({ error });
+    console.log("LABEL ERROR", error);
+    res.status(500).json({ error: "Error al guardar las etiquetas" });
   }
 };
 

@@ -87,6 +87,7 @@ model Label {
   wrong_labels     Int
   purchase_number  String
   price            Int
+  coordinates      String
   vehicle_brand_id Int
   vehicle_model_id Int
   vehicle_year     String
@@ -95,7 +96,8 @@ model Label {
   show_plate       Boolean
   vehicle_plate    String
   show_logo        Boolean
-  coordinates      String
+  print_type       String
+  description      String
   VehicleBrand     VehicleBrands @relation(fields: [vehicle_brand_id], references: [id])
   VehicleModel     VehicleModels @relation(fields: [vehicle_model_id], references: [id])
   branch           Branch   @relation(fields: [branch_id], references: [id])

@@ -1,13 +1,18 @@
 export type Label = {
   id: number;
+  label_id: number;
   user_id: number;
-  date: Date;
+  date: string;
   branch_id: number;
   label_quantity: number;
+  wrong_labels: number;
   purchase_number: string;
-  price: number;
+  price: string;
+  coordinates: string;
   vehicle_brand: string;
   vehicle_model: string;
+  vehicle_brand_id: number;
+  vehicle_model_id: number;
   vehicle_year: string;
   show_vin: boolean;
   vehicle_vin: string;
@@ -15,5 +20,6 @@ export type Label = {
   vehicle_plate: string;
   show_logo: boolean;
   vehicle_logo: string;
-  location: string;
+  print_type: string;
+  description: string;
 };
