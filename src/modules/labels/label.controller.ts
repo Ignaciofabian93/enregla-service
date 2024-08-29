@@ -42,6 +42,7 @@ export const GetAllLabels = async (req: Request, res: Response) => {
 
     res.status(200).json({ labels: formattedLabels });
   } catch (error) {
+    console.log("Get labels error: ", error);
     res.status(500).json({ error });
   }
 };
