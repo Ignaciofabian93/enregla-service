@@ -90,6 +90,7 @@ export const GetSupplyList = async (req: Request, res: Response) => {
 
     res.status(200).json({ supplies: formattedSupplies });
   } catch (error) {
+    console.log("Getting supply list: ", error);
     res.status(500).json({ error });
   }
 };
@@ -118,16 +119,16 @@ export const CreateSupply = async (req: Request, res: Response) => {
       data: {
         category,
         name,
-        quantity,
-        price,
+        quantity: Number(quantity),
+        price: Number(price),
         branchSupplies: {
           create: {
             branch: {
               connect: {
-                id: branch_id,
+                id: Number(branch_id),
               },
             },
-            quantity,
+            quantity: Number(quantity),
           },
         },
       },
@@ -137,6 +138,7 @@ export const CreateSupply = async (req: Request, res: Response) => {
 
     res.status(201).json({ supply, message: "Insumo registrado correctamente" });
   } catch (error) {
+    console.log("Creating supply: ", error);
     res.status(500).json({ error });
   }
 };
@@ -148,44 +150,38 @@ export const UpdateSupply = async (req: Request, res: Response) => {
 
     const branchSupply = await prisma.branchSupply.findFirst({
       where: {
-        branch_id: branch_id,
+        branch_id: Number(branch_id),
         supply_id: Number(id),
       },
     });
 
     if (branchSupply) {
-      await prisma.branchSupply.update({
+      const updatedBranchSupply = await prisma.branchSupply.update({
         where: {
-          id: branchSupply.id,
+          id: Number(branchSupply.id),
         },
         data: {
-          quantity,
+          quantity: Number(quantity),
         },
       });
+
+      if (updatedBranchSupply) {
+        await prisma.supplies.update({
+          where: { id: Number(id) },
+          data: {
+            category,
+            name,
+            quantity: Number(quantity),
+            price: Number(price),
+          },
+        });
+      }
+      return res.status(201).json({ message: "Insumo actualizado correctamente" });
     } else {
-      await prisma.branchSupply.create({
-        data: {
-          branch_id,
-          supply_id: Number(id),
-          quantity,
-        },
-      });
+      return res.status(404).json({ error: "Insumo no encontrado" });
     }
-
-    const supply = await prisma.supplies.update({
-      where: { id: Number(id) },
-      data: {
-        category,
-        name,
-        quantity,
-        price,
-      },
-    });
-
-    if (!supply) return res.status(404).json({ error: "Insumo no encontrado" });
-
-    res.status(200).json({ supply, message: "Insumo actualizado correctamente" });
   } catch (error) {
+    console.log("Updating supply: ", error);
     res.status(500).json({ error });
   }
 };
@@ -194,14 +190,28 @@ export const DeleteSupply = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const supply = await prisma.supplies.delete({
-      where: { id: Number(id) },
-    });
+    if (!id) return res.status(400).json({ error: "Falta el id del insumo" });
 
-    if (!supply) return res.status(404).json({ error: "Insumo no encontrado" });
+    const checkIfExists = await prisma.branchSupply.findFirst({ where: { supply_id: Number(id) } });
 
-    res.status(200).json({ supply });
+    if (checkIfExists) {
+      const supplyFromBranch = await prisma.branchSupply.deleteMany({
+        where: { supply_id: Number(id) },
+      });
+
+      if (supplyFromBranch.count) {
+        const supply = await prisma.supplies.delete({
+          where: { id: Number(id) },
+        });
+        if (!supply.id) return res.status(404).json({ error: "No se pudo eliminar el insumo" });
+      }
+
+      return res.status(200).json({ message: "Insumo eliminado correctamente" });
+    } else {
+      return res.status(404).json({ error: "Insumo no encontrado" });
+    }
   } catch (error) {
+    console.error("Deleting supply: ", error);
     res.status(500).json({ error });
   }
 };
