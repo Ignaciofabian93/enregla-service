@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
 import prisma from "../../client/prismaclient";
 import { Label } from "./label.types";
+import { User } from "../users/user.types";
+
+type CustomRequest = Request & {
+  user?: User;
+};
 
 export const GetLabels = async (req: Request, res: Response) => {
   try {
@@ -18,7 +23,7 @@ export const GetLabels = async (req: Request, res: Response) => {
   }
 };
 
-export const GetAllLabels = async (req: Request, res: Response) => {
+export const GetAllLabels = async (req: CustomRequest, res: Response) => {
   try {
     const { user } = req.body;
     console.log("User: ", user);
