@@ -1,11 +1,6 @@
 import { Request, Response } from "express";
-import prisma from "../../client/prismaclient";
 import { Label } from "./label.types";
-import { User } from "../users/user.types";
-
-type CustomRequest = Request & {
-  user?: User;
-};
+import prisma from "../../client/prismaclient";
 
 export const GetLabels = async (req: Request, res: Response) => {
   try {
@@ -23,15 +18,13 @@ export const GetLabels = async (req: Request, res: Response) => {
   }
 };
 
-export const GetAllLabels = async (req: CustomRequest, res: Response) => {
+export const GetAllLabels = async (req: Request, res: Response) => {
   try {
-    const { user } = req.body;
-    console.log("User: ", user);
+    const { branch_id } = req.query;
 
     const labels = await prisma.label.findMany({
       where: {
-        user_id: Number(user.id),
-        branch_id: Number(user.branch_id),
+        branch_id: Number(branch_id),
       },
       include: {
         VehicleBrand: { select: { brand: true } },
