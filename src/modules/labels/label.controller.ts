@@ -23,14 +23,24 @@ export const GetAllLabels = async (req: Request, res: Response) => {
     const { user } = req.body;
     const labels = await prisma.label.findMany({
       where: {
-        user_id: user.id,
-        branch_id: user.branch_id,
+        user_id: Number(user.id),
+        branch_id: Number(user.branch_id),
+      },
+      include: {
+        VehicleBrand: { select: { brand: true } },
+        VehicleModel: { select: { model: true } },
       },
     });
 
     if (!labels) return res.status(404).json({ error: "No hay etiquetas guardadas" });
 
-    res.status(200).json({ labels });
+    const formattedLabels = labels.map((label) => ({
+      ...label,
+      vehicle_brand: label.VehicleBrand.brand,
+      vehicle_model: label.VehicleModel.model,
+    }));
+
+    res.status(200).json({ labels: formattedLabels });
   } catch (error) {
     res.status(500).json({ error });
   }
