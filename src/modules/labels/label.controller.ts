@@ -76,6 +76,8 @@ export const SaveLabel = async (req: Request, res: Response) => {
       description: label.description,
     }));
 
+    console.log("NEW LABELS: ", newLabels);
+
     const createdLabels = await prisma.label.createMany({
       data: newLabels,
     });
