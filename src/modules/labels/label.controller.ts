@@ -4,11 +4,7 @@ import prisma from "../../client/prismaclient";
 
 export const GetLabels = async (req: Request, res: Response) => {
   try {
-    const { page, rows } = req.query;
-    const labels = await prisma.label.findMany({
-      skip: (Number(page) - 1) * Number(rows),
-      take: Number(rows),
-    });
+    const labels = await prisma.label.findMany();
 
     if (!labels) return res.status(404).json({ error: "No hay etiquetas guardadas" });
 
