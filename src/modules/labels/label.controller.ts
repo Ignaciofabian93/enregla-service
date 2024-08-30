@@ -4,11 +4,32 @@ import prisma from "../../client/prismaclient";
 
 export const GetLabels = async (req: Request, res: Response) => {
   try {
-    const labels = await prisma.label.findMany();
+    const labels = await prisma.label.findMany({
+      include: {
+        VehicleBrand: { select: { brand: true, logo: true } },
+        VehicleModel: { select: { model: true } },
+        user: { select: { name: true, rut: true, email: true } },
+        branch: { select: { address: true, agency: true, location: true, telephone: true } },
+      },
+    });
 
     if (!labels) return res.status(404).json({ error: "No hay etiquetas guardadas" });
 
-    res.status(200).json({ labels });
+    const formattedLabels = labels.map((label) => ({
+      ...label,
+      vehicle_brand: label.VehicleBrand.brand,
+      vehicle_model: label.VehicleModel.model,
+      vehicle_logo: label.VehicleBrand.logo,
+      user_name: label.user.name,
+      user_rut: label.user.rut,
+      user_email: label.user.email,
+      branch_address: label.branch.address,
+      branch_agency: label.branch.agency,
+      branch_location: label.branch.location,
+      branch_telephone: label.branch.telephone,
+    }));
+
+    res.status(200).json({ labels: formattedLabels });
   } catch (error) {
     res.status(500).json({ error });
   }
