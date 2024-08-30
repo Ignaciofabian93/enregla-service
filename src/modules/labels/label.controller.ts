@@ -16,17 +16,28 @@ export const GetLabels = async (req: Request, res: Response) => {
     if (!labels) return res.status(404).json({ error: "No hay etiquetas guardadas" });
 
     const formattedLabels = labels.map((label) => ({
-      ...label,
+      id: label.id,
+      user_id: label.user_id,
+      date: label.date,
+      branch_id: label.branch_id,
+      label_quantity: label.label_quantity,
+      wrong_labels: label.wrong_labels,
+      purchase_number: label.purchase_number,
+      price: label.price,
+      coordinates: label.coordinates,
       vehicle_brand: label.VehicleBrand.brand,
       vehicle_model: label.VehicleModel.model,
       vehicle_logo: label.VehicleBrand.logo,
-      user_name: label.user.name,
-      user_rut: label.user.rut,
-      user_email: label.user.email,
-      branch_address: label.branch.address,
-      branch_agency: label.branch.agency,
-      branch_location: label.branch.location,
-      branch_telephone: label.branch.telephone,
+      vehicle_brand_id: label.vehicle_brand_id,
+      vehicle_model_id: label.vehicle_model_id,
+      vehicle_year: label.vehicle_year,
+      show_vin: label.show_vin,
+      vehicle_vin: label.vehicle_vin,
+      show_plate: label.show_plate,
+      vehicle_plate: label.vehicle_plate,
+      show_logo: label.show_logo,
+      print_type: label.print_type,
+      description: label.description,
     }));
 
     res.status(200).json({ labels: formattedLabels });
