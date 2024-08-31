@@ -4,7 +4,7 @@ import prisma from "../../client/prismaclient";
 export const GetAllAgencies = async (req: Request, res: Response) => {
   try {
     const agencies = await prisma.agency.findMany({
-      where: { name: { not: "Matriz" } },
+      where: { id: { not: 1 } },
     });
 
     if (!agencies) return res.status(404).json({ error: "No hay automotoras guardadas" });

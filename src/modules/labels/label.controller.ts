@@ -6,9 +6,9 @@ export const GetLabels = async (req: Request, res: Response) => {
   try {
     const labels = await prisma.label.findMany({
       include: {
-        VehicleBrand: { select: { brand: true, logo: true } },
-        VehicleModel: { select: { model: true } },
-        user: { select: { name: true, rut: true, email: true } },
+        vehicle_brand: { select: { brand: true, logo: true } },
+        vehicle_model: { select: { model: true } },
+        user: { select: { name: true, email: true } },
         branch: { select: { address: true, agency: true, location: true, telephone: true } },
       },
     });
@@ -25,12 +25,10 @@ export const GetLabels = async (req: Request, res: Response) => {
       branch_telephone: label.branch.telephone,
       label_quantity: label.label_quantity,
       wrong_labels: label.wrong_labels,
-      purchase_number: label.purchase_number,
-      price: label.price,
       coordinates: label.coordinates,
-      vehicle_brand: label.VehicleBrand.brand,
-      vehicle_model: label.VehicleModel.model,
-      vehicle_logo: label.VehicleBrand.logo,
+      vehicle_brand: label.vehicle_brand.brand,
+      vehicle_model: label.vehicle_model.model,
+      vehicle_logo: label.vehicle_brand.logo,
       vehicle_brand_id: label.vehicle_brand_id,
       vehicle_model_id: label.vehicle_model_id,
       vehicle_year: label.vehicle_year,
@@ -58,8 +56,8 @@ export const GetAllLabels = async (req: Request, res: Response) => {
         branch_id: Number(branch_id),
       },
       include: {
-        VehicleBrand: { select: { brand: true } },
-        VehicleModel: { select: { model: true } },
+        vehicle_brand: { select: { brand: true } },
+        vehicle_model: { select: { model: true } },
       },
     });
 
@@ -67,8 +65,8 @@ export const GetAllLabels = async (req: Request, res: Response) => {
 
     const formattedLabels = labels.map((label) => ({
       ...label,
-      vehicle_brand: label.VehicleBrand.brand,
-      vehicle_model: label.VehicleModel.model,
+      vehicle_brand: label.vehicle_brand.brand,
+      vehicle_model: label.vehicle_model.model,
     }));
 
     res.status(200).json({ labels: formattedLabels });

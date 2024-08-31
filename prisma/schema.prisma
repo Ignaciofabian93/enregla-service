@@ -52,7 +52,6 @@ model Role {
 model User {
   id        Int     @id @default(autoincrement())
   name      String  @db.VarChar(250)
-  rut       String  @unique @db.VarChar(50)
   email     String  @unique @db.VarChar(250)
   password  String  @db.VarChar(250)
   branch_id Int
@@ -79,14 +78,12 @@ model VehicleModels {
 }
 
 model Label {
-  id               Int      @id @default(autoincrement())
+  id               Int           @id @default(autoincrement())
   user_id          Int
   date             String
   branch_id        Int
   label_quantity   Int
   wrong_labels     Int
-  purchase_number  String
-  price            Int
   coordinates      String
   vehicle_brand_id Int
   vehicle_model_id Int
@@ -98,8 +95,8 @@ model Label {
   show_logo        Boolean
   print_type       String
   description      String
-  VehicleBrand     VehicleBrands @relation(fields: [vehicle_brand_id], references: [id])
-  VehicleModel     VehicleModels @relation(fields: [vehicle_model_id], references: [id])
-  branch           Branch   @relation(fields: [branch_id], references: [id])
-  user             User     @relation(fields: [user_id], references: [id])
+  vehicle_brand    VehicleBrands @relation(fields: [vehicle_brand_id], references: [id])
+  vehicle_model    VehicleModels @relation(fields: [vehicle_model_id], references: [id])
+  branch           Branch        @relation(fields: [branch_id], references: [id])
+  user             User          @relation(fields: [user_id], references: [id])
 }

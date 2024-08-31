@@ -5,7 +5,7 @@ import prisma from "../../client/prismaclient";
 export const GetAllBranches = async (req: Request, res: Response) => {
   try {
     const branches: Branch[] = await prisma.branch.findMany({
-      where: { location: { not: "-33.415109, -70.591094" } },
+      where: { id: { not: 1 } },
     });
 
     if (!branches) return res.status(404).json({ error: "No hay sucursales guardadas" });
@@ -21,11 +21,11 @@ export const GetBranches = async (req: Request, res: Response) => {
     const { page, rows } = req.query;
 
     const count: number = await prisma.branch.count({
-      where: { location: { not: "-33.415109, -70.591094" } },
+      where: { id: { not: 1 } },
     });
     const branches = await prisma.branch.findMany({
-      where: { location: { not: "-33.415109, -70.591094" } },
-      include: { agency: true, labels: true, users: { select: { id: true, rut: true } } },
+      where: { id: { not: 1 } },
+      include: { agency: true, labels: true, users: { select: { id: true, email: true } } },
       skip: (Number(page) - 1) * Number(rows),
       take: Number(rows),
     });

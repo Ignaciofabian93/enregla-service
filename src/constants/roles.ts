@@ -1,1 +1,1 @@
-export const allowed_user_roles = ["1", "2"];
+export const allowed_user_roles = [1, 2];

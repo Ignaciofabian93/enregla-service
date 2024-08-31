@@ -18,12 +18,9 @@ export const IsAuthenticated = async (req: CustomRequest, res: Response, next: N
 
     const { id } = decoded as JwtPayload;
 
-    console.log("ID: ", id);
-
     const findUser = await prisma.user.findFirst({
       where: { id },
     });
-    console.log("Find user: ", findUser);
 
     req.user = findUser as User;
     next();
@@ -35,7 +32,7 @@ export const IsAuthenticated = async (req: CustomRequest, res: Response, next: N
 export const IsAuthorized = async (req: CustomRequest, res: Response, next: NextFunction) => {
   if (!req.user) return res.status(401).json({ error: "No autorizado" });
 
-  if (!allowed_user_roles.includes(String(req.user?.role_id)))
+  if (!allowed_user_roles.includes(req.user?.role_id))
     return res.status(403).json({ error: "No autorizado" });
 
   next();

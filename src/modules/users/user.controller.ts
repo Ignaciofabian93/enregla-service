@@ -2,27 +2,24 @@ import { Request, Response } from "express";
 import { compare, hash, genSalt } from "bcrypt";
 import { sign } from "jsonwebtoken";
 import { User } from "./user.types";
+import { CustomRequest } from "../../constants/request";
 import prisma from "../../client/prismaclient";
 
-type CustomRequest = Request & {
-  user?: User;
-};
-
+// Auth
 export const Auth = async (req: Request, res: Response) => {
   try {
-    const { rut, password } = req.body;
-
-    if (!rut || !password) return res.status(400).json({ error: "Credenciales incompletas" });
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ error: "Credenciales incompletas" });
 
     const user = await prisma.user.findUnique({
-      where: { rut },
+      where: { email },
       select: {
         id: true,
         name: true,
-        rut: true,
         email: true,
         password: true,
         branch_id: true,
+        role_id: true,
       },
     });
     if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
@@ -30,17 +27,16 @@ export const Auth = async (req: Request, res: Response) => {
     const isMatch = await compare(password, user.password);
     if (!isMatch) return res.status(400).json({ error: "Contraseña incorrecta" });
 
-    const token = sign({ id: user.id }, process.env.JWT_SECRET as string, {
-      expiresIn: "1d",
-    });
+    const token = sign({ id: user.id }, process.env.JWT_SECRET as string);
 
     return res.status(200).json({ user, token });
   } catch (error) {
-    console.log("Error while trying to authenticate user: ", error);
+    console.error("Error while trying to authenticate user: ", error);
     res.status(500).json({ error: error });
   }
 };
 
+// Get session data
 export const GetMe = async (req: CustomRequest, res: Response) => {
   try {
     const { user } = req;
@@ -51,19 +47,61 @@ export const GetMe = async (req: CustomRequest, res: Response) => {
   }
 };
 
+// All users data for mobile
+export const GetAllUsers = async (req: CustomRequest, res: Response) => {
+  try {
+    const { user } = req;
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        branch: {
+          select: {
+            id: true,
+            address: true,
+          },
+        },
+        role: { select: { id: true, name: true } },
+      },
+      where: { branch_id: (user as User).branch_id },
+    });
+
+    const formattedUsers = users.map((user) => ({
+      ...user,
+      branch_id: user.branch.id,
+      branch: user.branch.address,
+      role_id: user.role.id,
+      role: user.role.name,
+    }));
+
+    return res.status(200).json({ users: formattedUsers });
+  } catch (error) {
+    console.error("Error while getting users: ", error);
+    res.status(500).json({ error: error });
+  }
+};
+
+// Web-Admin
+// Filtering depending on role
 export const GetUsers = async (req: CustomRequest, res: Response) => {
   try {
     const { page, rows } = req.query;
     const { user } = req;
+
+    const whereClause =
+      (user as User).role_id === 2
+        ? { id: { not: (user as User).id }, branch_id: (user as User).branch_id }
+        : { id: { not: (user as User).id } };
+
     const count = await prisma.user.count({
-      where: { id: { not: (user as User).id } },
+      where: whereClause,
     });
     const users = await prisma.user.findMany({
-      where: { id: { not: (user as User).id } },
+      where: whereClause,
       select: {
         id: true,
         name: true,
-        rut: true,
         email: true,
         branch: {
           select: {
@@ -87,51 +125,25 @@ export const GetUsers = async (req: CustomRequest, res: Response) => {
 
     return res.status(200).json({ users: formattedUsers, count });
   } catch (error) {
-    console.log("Error while getting users: ", error);
+    console.error("Error while getting users: ", error);
     res.status(500).json({ error: error });
   }
 };
 
-export const GetUser = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const user = await prisma.user.findUnique({
-      where: { id: Number(id) },
-      select: {
-        id: true,
-        name: true,
-        rut: true,
-        email: true,
-        branch: {
-          select: { id: true, location: true, address: true, telephone: true },
-          include: { agency: { select: { id: true, name: true } } },
-        },
-        role: { select: { id: true, name: true } },
-      },
-    });
-
-    return res.status(200).json({ user });
-  } catch (error) {
-    res.status(500).json({ error: error });
-  }
-};
-
+// Admin & Supervisor
 export const CreateUser = async (req: Request, res: Response) => {
   try {
-    const { name, rut, email, branch_id, role_id } = req.body;
+    const { name, email, branch_id, role_id, password } = req.body;
 
-    if (!name || !rut || !email || !branch_id || !role_id)
+    if (!name || !email || !branch_id || !role_id)
       return res.status(400).json({ error: "Faltan datos" });
 
-    const password = `${name[0]}${rut.split("-")[0]}`;
     const salt = await genSalt(10);
     const hashedPassword = await hash(password, salt);
 
     const user = await prisma.user.create({
       data: {
         name,
-        rut,
         email,
         password: hashedPassword,
         branch_id: Number(branch_id),
@@ -139,11 +151,10 @@ export const CreateUser = async (req: Request, res: Response) => {
       },
     });
     if (!user) return res.status(400).json({ error: "Error al crear usuario" });
-    console.log("User: ", user);
 
     return res.status(201).json({ message: "Usuario creado", user });
   } catch (error) {
-    console.log("Error while creating user ", error);
+    console.error("Error while creating user ", error);
     res.status(500).json({ error: error });
   }
 };
@@ -152,7 +163,6 @@ export const UpdateUser = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const { name, email, branch_id, role_id } = req.body;
-    console.log(req.body, req.params);
 
     if (!email || !branch_id || !role_id) return res.status(400).json({ error: "Faltan datos" });
 
