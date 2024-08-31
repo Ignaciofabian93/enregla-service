@@ -3,15 +3,21 @@ import {
   CreateSupply,
   DeleteSupply,
   GetSupplies,
-  GetSupply,
   GetSupplyList,
   UpdateSupply,
 } from "./supply.controller";
+import { IsAuthenticated, IsAuthorized } from "../../middlewares/session";
 
 const supply = Router();
 
-supply.route("/supply-list").get(GetSupplyList);
-supply.route("/supply").get(GetSupplies).post(CreateSupply);
-supply.route("/supply/:id").get(GetSupply).put(UpdateSupply).delete(DeleteSupply);
+supply.route("/supply-list").get(IsAuthenticated, GetSupplyList);
+supply
+  .route("/supply")
+  .get(IsAuthenticated, IsAuthorized, GetSupplies)
+  .post(IsAuthenticated, IsAuthorized, CreateSupply);
+supply
+  .route("/supply/:id")
+  .put(IsAuthenticated, IsAuthorized, UpdateSupply)
+  .delete(IsAuthenticated, IsAuthorized, DeleteSupply);
 
 export default supply;

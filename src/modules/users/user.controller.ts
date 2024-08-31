@@ -42,7 +42,7 @@ export const GetMe = async (req: CustomRequest, res: Response) => {
     const { user } = req;
     return res.status(200).json({ user });
   } catch (error) {
-    console.log("Error while getting user: ", error);
+    console.error("Error while getting user: ", error);
     res.status(500).json({ error: error });
   }
 };
@@ -178,6 +178,7 @@ export const UpdateUser = async (req: Request, res: Response) => {
 
     return res.status(201).json({ message: "Usuario actualizado", user });
   } catch (error) {
+    console.error("Error while trying to update user: ", error);
     res.status(500).json({ error: error });
   }
 };
@@ -192,6 +193,7 @@ export const DeleteUser = async (req: Request, res: Response) => {
 
     return res.status(200).json({ message: "Usuario eliminado", user });
   } catch (error) {
+    console.error("Error while trying to delete user: ", error);
     res.status(500).json({ error: error });
   }
 };

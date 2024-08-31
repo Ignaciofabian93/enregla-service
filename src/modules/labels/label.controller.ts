@@ -1,9 +1,14 @@
 import { Request, Response } from "express";
 import { Label } from "./label.types";
+import { CustomRequest } from "../../constants/request";
+import { User } from "../users/user.types";
 import prisma from "../../client/prismaclient";
 
-export const GetLabels = async (req: Request, res: Response) => {
+// For mobile app
+export const GetLabels = async (req: CustomRequest, res: Response) => {
   try {
+    const { user } = req;
+
     const labels = await prisma.label.findMany({
       include: {
         vehicle_brand: { select: { brand: true, logo: true } },
@@ -11,6 +16,7 @@ export const GetLabels = async (req: Request, res: Response) => {
         user: { select: { name: true, email: true } },
         branch: { select: { address: true, agency: true, location: true, telephone: true } },
       },
+      where: { branch_id: (user as User).branch_id },
     });
 
     if (!labels) return res.status(404).json({ error: "No hay etiquetas guardadas" });
@@ -43,18 +49,24 @@ export const GetLabels = async (req: Request, res: Response) => {
 
     res.status(200).json({ labels: formattedLabels });
   } catch (error) {
+    console.error("Error while trying to get labels: ", error);
     res.status(500).json({ error });
   }
 };
 
-export const GetAllLabels = async (req: Request, res: Response) => {
+// For web-admin statistics
+export const GetAllLabels = async (req: CustomRequest, res: Response) => {
   try {
-    const { branch_id } = req.query;
+    const { user } = req;
+
+    const whereClause =
+      (user as User).role_id === 2
+        ? { branch_id: (user as User).branch_id }
+        : { branch_id: { not: (user as User).branch_id } };
 
     const labels = await prisma.label.findMany({
-      where: {
-        branch_id: Number(branch_id),
-      },
+      where: whereClause,
+      orderBy: { date: "desc" },
       include: {
         vehicle_brand: { select: { brand: true } },
         vehicle_model: { select: { model: true } },
@@ -71,7 +83,7 @@ export const GetAllLabels = async (req: Request, res: Response) => {
 
     res.status(200).json({ labels: formattedLabels });
   } catch (error) {
-    console.log("Get labels error: ", error);
+    console.error("Error while trying to get labels: ", error);
     res.status(500).json({ error });
   }
 };
@@ -105,8 +117,6 @@ export const SaveLabel = async (req: Request, res: Response) => {
       description: label.description,
     }));
 
-    console.log("NEW LABELS: ", newLabels);
-
     const createdLabels = await prisma.label.createMany({
       data: newLabels,
     });
@@ -119,20 +129,7 @@ export const SaveLabel = async (req: Request, res: Response) => {
       .status(200)
       .json({ count: createdLabels.count, message: "Etiquetas guardadas correctamente" });
   } catch (error) {
-    console.log("LABEL ERROR", error);
+    console.error("Error while trying to save labels", error);
     res.status(500).json({ error: "Error al guardar las etiquetas" });
-  }
-};
-
-export const GetLabel = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const label = await prisma.label.findUnique({ where: { id: Number(id) } });
-
-    if (!label) return res.status(404).json({ error: "Etiqueta no encontrada" });
-
-    res.status(200).json({ label });
-  } catch (error) {
-    res.status(500).json({ error });
   }
 };

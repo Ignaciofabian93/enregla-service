@@ -11,6 +11,7 @@ export const GetAllAgencies = async (req: Request, res: Response) => {
 
     res.status(200).json({ agencies });
   } catch (error) {
+    console.error("Error while getting agencies: ", error);
     res.status(500).json({ error });
   }
 };

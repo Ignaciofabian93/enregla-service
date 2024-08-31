@@ -1,11 +1,26 @@
 import { Request, Response } from "express";
+import { CustomRequest } from "../../constants/request";
+import { User } from "../users/user.types";
 import prisma from "../../client/prismaclient";
 
-export const GetSupplies = async (req: Request, res: Response) => {
+export const GetSupplies = async (req: CustomRequest, res: Response) => {
   try {
     const { page, rows } = req.query;
+    const { user } = req;
 
-    const count = await prisma.supplies.count();
+    const whereCountClause =
+      (user as User).role_id === 2
+        ? { branchSupplies: { every: { branch_id: (user as User).branch_id } } }
+        : { branchSupplies: { every: { branch_id: { not: (user as User).branch_id } } } };
+
+    const whereClause =
+      (user as User).role_id === 2
+        ? { branch_id: (user as User).branch_id }
+        : { branch_id: { not: (user as User).branch_id } };
+
+    const count = await prisma.supplies.count({
+      where: whereCountClause,
+    });
     const supplies = await prisma.branchSupply.findMany({
       include: {
         branch: {
@@ -27,6 +42,7 @@ export const GetSupplies = async (req: Request, res: Response) => {
           },
         },
       },
+      where: whereClause,
       skip: (Number(page) - 1) * Number(rows),
       take: Number(rows),
     });
@@ -45,15 +61,18 @@ export const GetSupplies = async (req: Request, res: Response) => {
 
     res.status(200).json({ supplies: formattedSupplies, count });
   } catch (error) {
+    console.error("Error while trying to get supplies: ", error);
     res.status(500).json({ error });
   }
 };
 
-export const GetSupplyList = async (req: Request, res: Response) => {
-  const { branch_id } = req.query;
+// For mobile app
+export const GetSupplyList = async (req: CustomRequest, res: Response) => {
   try {
+    const { user } = req;
+
     const supplies = await prisma.branchSupply.findMany({
-      where: { branch_id: Number(branch_id) },
+      where: { branch_id: (user as User).branch_id },
       include: {
         branch: {
           select: {
@@ -90,23 +109,7 @@ export const GetSupplyList = async (req: Request, res: Response) => {
 
     res.status(200).json({ supplies: formattedSupplies });
   } catch (error) {
-    console.log("Getting supply list: ", error);
-    res.status(500).json({ error });
-  }
-};
-
-export const GetSupply = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-
-    const supply = await prisma.supplies.findUnique({
-      where: { id: Number(id) },
-    });
-
-    if (!supply) return res.status(404).json({ error: "Insumo no encontrado" });
-
-    res.status(200).json({ supply });
-  } catch (error) {
+    console.error("Error while trying to get supplies: ", error);
     res.status(500).json({ error });
   }
 };
@@ -138,7 +141,7 @@ export const CreateSupply = async (req: Request, res: Response) => {
 
     res.status(201).json({ supply, message: "Insumo registrado correctamente" });
   } catch (error) {
-    console.log("Creating supply: ", error);
+    console.error("Error while creating supply: ", error);
     res.status(500).json({ error });
   }
 };
@@ -181,7 +184,7 @@ export const UpdateSupply = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Insumo no encontrado" });
     }
   } catch (error) {
-    console.log("Updating supply: ", error);
+    console.error("Error while updating supply: ", error);
     res.status(500).json({ error });
   }
 };
@@ -211,7 +214,7 @@ export const DeleteSupply = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Insumo no encontrado" });
     }
   } catch (error) {
-    console.error("Deleting supply: ", error);
+    console.error("Error while deleting supply: ", error);
     res.status(500).json({ error });
   }
 };

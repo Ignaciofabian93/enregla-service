@@ -4,6 +4,7 @@ import prisma from "../../client/prismaclient";
 export const GetVehicles = async (req: Request, res: Response) => {
   try {
     const { page, rows } = req.query;
+
     const count = await prisma.vehicleModels.count();
     const vehicles = await prisma.vehicleModels.findMany({
       include: { brand: { select: { brand: true, logo: true } } },
@@ -21,10 +22,12 @@ export const GetVehicles = async (req: Request, res: Response) => {
 
     res.status(200).json({ vehicles: formattedVehicles, count });
   } catch (error) {
+    console.error("Error while trying to get vehicles: ", error);
     res.status(500).json({ error });
   }
 };
 
+// For mobile app and web
 export const GetVehicleBrands = async (req: Request, res: Response) => {
   try {
     const vehicleBrands = await prisma.vehicleBrands.findMany();
@@ -33,10 +36,12 @@ export const GetVehicleBrands = async (req: Request, res: Response) => {
 
     res.status(200).json({ brands: vehicleBrands });
   } catch (error) {
+    console.error("Error while trying to get vehicle brands: ", error);
     res.status(500).json({ error });
   }
 };
 
+// For mobile app and web
 export const GetVehicleModels = async (req: Request, res: Response) => {
   try {
     const vehicleModels = await prisma.vehicleModels.findMany({
@@ -53,6 +58,7 @@ export const GetVehicleModels = async (req: Request, res: Response) => {
 
     res.status(200).json({ models: formattedModels });
   } catch (error) {
+    console.error("Error while trying to get vehicle models: ", error);
     res.status(500).json({ error });
   }
 };
@@ -80,7 +86,7 @@ export const SaveVehicle = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "No se pudo crear el vehículo" });
     }
   } catch (error) {
-    console.log("Error: ", error);
+    console.error("Error while trying to save vehicle: ", error);
     res.status(500).json({ error });
   }
 };
@@ -110,6 +116,7 @@ export const UpdateVehicle = async (req: Request, res: Response) => {
 
     res.status(200).json({ vehicle, message: "Vehículo actualizado correctamente" });
   } catch (error) {
+    console.error("Error while trying to update vehicle: ", error);
     res.status(500).json({ error });
   }
 };
@@ -126,6 +133,7 @@ export const DeleteVehicle = async (req: Request, res: Response) => {
 
     res.status(200).json({ vehicle });
   } catch (error) {
+    console.error("Error while trying to delete vehicle: ", error);
     res.status(500).json({ error });
   }
 };

@@ -1,7 +1,9 @@
 import { Request, Response } from "express";
 import { Branch } from "./branch.type";
 import prisma from "../../client/prismaclient";
+import { CustomRequest } from "../../constants/request";
 
+//All Branches for mobile app
 export const GetAllBranches = async (req: Request, res: Response) => {
   try {
     const branches: Branch[] = await prisma.branch.findMany({
@@ -12,11 +14,13 @@ export const GetAllBranches = async (req: Request, res: Response) => {
 
     res.status(200).json({ branches });
   } catch (error) {
+    console.error("Error while trying to get branches: ", error);
     res.status(500).json({ error });
   }
 };
 
-export const GetBranches = async (req: Request, res: Response) => {
+// Web-Admin
+export const GetBranches = async (req: CustomRequest, res: Response) => {
   try {
     const { page, rows } = req.query;
 
@@ -40,19 +44,7 @@ export const GetBranches = async (req: Request, res: Response) => {
 
     res.status(200).json({ branches: formattedBranches, count });
   } catch (error) {
-    res.status(500).json({ error });
-  }
-};
-
-export const GetBranch = async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const branch: Branch | null = await prisma.branch.findUnique({ where: { id: Number(id) } });
-
-    if (!branch) return res.status(404).json({ error: "Sucursal no encontrada" });
-
-    res.status(200).json({ branch });
-  } catch (error) {
+    console.error("Error while trying to get branches: ", error);
     res.status(500).json({ error });
   }
 };
@@ -76,6 +68,7 @@ export const CreateBranch = async (req: Request, res: Response) => {
 
     res.status(200).json({ new_branch, message: "Sucursal guardada correctamente" });
   } catch (error) {
+    console.error("Error while trying to create branch: ", error);
     res.status(500).json({ error });
   }
 };
@@ -101,6 +94,7 @@ export const UpdateBranch = async (req: Request, res: Response) => {
 
     res.status(200).json({ branch: updated_branch, message: "Sucursal actualizada correctamente" });
   } catch (error) {
+    console.error("Error while trying to update branch: ", error);
     res.status(500).json({ error });
   }
 };
@@ -108,12 +102,13 @@ export const UpdateBranch = async (req: Request, res: Response) => {
 export const DeleteBranch = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const deleted_branch: Branch | null = await prisma.branch.delete({ where: { id: Number(id) } });
+    const deleted_branch = await prisma.branch.delete({ where: { id: Number(id) } });
 
     if (!deleted_branch) return res.status(404).json({ error: "Sucursal no encontrada" });
 
     res.status(200).json({ branch: deleted_branch, message: "Sucursal eliminada correctamente" });
   } catch (error) {
+    console.error("Error while trying to delete branch: ", error);
     res.status(500).json({ error });
   }
 };
