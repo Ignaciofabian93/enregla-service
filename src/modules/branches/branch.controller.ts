@@ -1,13 +1,21 @@
 import { Request, Response } from "express";
 import { Branch } from "./branch.type";
-import prisma from "../../client/prismaclient";
 import { CustomRequest } from "../../constants/request";
+import prisma from "../../client/prismaclient";
+import { User } from "../users/user.types";
 
 //All Branches for mobile app
-export const GetAllBranches = async (req: Request, res: Response) => {
+export const GetAllBranches = async (req: CustomRequest, res: Response) => {
   try {
+    const { user } = req;
+
+    const whereClause =
+      (user as User).role_id === 2
+        ? { id: (user as User).branch_id }
+        : { id: { not: (user as User).branch_id } };
+
     const branches: Branch[] = await prisma.branch.findMany({
-      where: { id: { not: 1 } },
+      where: whereClause,
     });
 
     if (!branches) return res.status(404).json({ error: "No hay sucursales guardadas" });
