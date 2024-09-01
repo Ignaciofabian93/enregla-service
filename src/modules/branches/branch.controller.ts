@@ -4,13 +4,12 @@ import { CustomRequest } from "../../constants/request";
 import prisma from "../../client/prismaclient";
 import { User } from "../users/user.types";
 
-//All Branches for mobile app
 export const GetAllBranches = async (req: CustomRequest, res: Response) => {
   try {
     const { user } = req;
 
     const whereClause =
-      (user as User).role_id === 2
+      (user as User).role_id === 2 || (user as User).role_id === 3
         ? { id: (user as User).branch_id }
         : { id: { not: (user as User).branch_id } };
 
