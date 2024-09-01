@@ -102,8 +102,6 @@ export const SaveLabel = async (req: Request, res: Response) => {
       branch_id: Number(label.branch_id),
       label_quantity: Number(label.label_quantity),
       wrong_labels: Number(label.wrong_labels),
-      purchase_number: label.purchase_number,
-      price: Number(label.price),
       coordinates: label.coordinates,
       vehicle_brand_id: Number(label.vehicle_brand_id),
       vehicle_model_id: Number(label.vehicle_model_id),
