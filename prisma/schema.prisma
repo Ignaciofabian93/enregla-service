@@ -79,7 +79,7 @@ model VehicleModels {
 
 model Label {
   id               Int           @id @default(autoincrement())
-  user_id          Int
+  operator_id      Int
   date             String
   branch_id        Int
   label_quantity   Int
@@ -98,5 +98,5 @@ model Label {
   vehicle_brand    VehicleBrands @relation(fields: [vehicle_brand_id], references: [id])
   vehicle_model    VehicleModels @relation(fields: [vehicle_model_id], references: [id])
   branch           Branch        @relation(fields: [branch_id], references: [id])
-  user             User          @relation(fields: [user_id], references: [id])
+  user             User          @relation(fields: [operator_id], references: [id])
 }

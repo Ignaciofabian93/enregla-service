@@ -23,7 +23,7 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
 
     const formattedLabels = labels.map((label) => ({
       id: label.id,
-      user_id: label.user_id,
+      operator_id: label.operator_id,
       date: label.date,
       branch_id: label.branch_id,
       branch_address: label.branch.address,
@@ -97,7 +97,7 @@ export const SaveLabel = async (req: Request, res: Response) => {
     }
 
     const newLabels = labels.map((label: Label) => ({
-      user_id: Number(label.user_id),
+      operator_id: Number(label.operator_id),
       date: label.date,
       branch_id: Number(label.branch_id),
       label_quantity: Number(label.label_quantity),

@@ -1,7 +1,7 @@
 export type Label = {
   id: number;
   label_id: number;
-  user_id: number;
+  operator_id: number;
   date: string;
   branch_id: number;
   label_quantity: number;
