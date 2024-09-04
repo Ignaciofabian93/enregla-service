@@ -23,6 +23,7 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
 
     const formattedLabels = labels.map((label) => ({
       id: label.id,
+      operator: label.user.name,
       operator_id: label.operator_id,
       date: label.date,
       branch_id: label.branch_id,
