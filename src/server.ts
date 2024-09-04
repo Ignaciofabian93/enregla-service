@@ -1,7 +1,8 @@
-import http from "http";
+import https from "https";
+import fs from "fs";
 import express from "express";
 import cors from "cors";
-
+import path from "path";
 import user from "./modules/users/user.route";
 import vehicle from "./modules/vehicles/vehicle.route";
 import label from "./modules/labels/label.route";
@@ -31,7 +32,12 @@ app.use("/api", supply);
 app.use("/api", branch);
 app.use("/api", agency);
 
-const server = http.createServer(app);
+const options = {
+  key: fs.readFileSync(path.resolve("/etc/ssl/private/privkey.pem")),
+  cert: fs.readFileSync(path.resolve("/etc/ssl/certs/fullchain.pem")),
+};
+
+const server = https.createServer(options, app);
 
 server.listen(port, () => {
   console.log(`http://localhost:${port}`);
