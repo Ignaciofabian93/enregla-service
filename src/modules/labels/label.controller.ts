@@ -60,14 +60,10 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
   try {
     const { user } = req;
 
-    console.log("USER LABELS: ", user);
-
     const whereClause =
       (user as User).role_id === 2
         ? { branch_id: (user as User).branch_id }
         : { branch_id: { not: (user as User).branch_id } };
-
-    console.log("WHERE LABELS: ", whereClause);
 
     const labels = await prisma.label.findMany({
       orderBy: { date: "desc" },
