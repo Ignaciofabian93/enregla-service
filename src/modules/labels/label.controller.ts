@@ -66,12 +66,13 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
         : { branch_id: { not: (user as User).branch_id } };
 
     const labels = await prisma.label.findMany({
-      where: whereClause,
       orderBy: { date: "desc" },
       include: {
+        branch: { select: { id: true, address: true, location: true } },
         vehicle_brand: { select: { brand: true } },
         vehicle_model: { select: { model: true } },
       },
+      where: whereClause,
     });
 
     if (!labels) return res.status(404).json({ error: "No hay etiquetas guardadas" });
