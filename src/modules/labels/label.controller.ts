@@ -98,24 +98,35 @@ export const SaveLabel = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "No hay etiquetas para guardar" });
     }
 
-    const newLabels = labels.map((label: Label) => ({
-      operator_id: Number(label.operator_id),
-      date: label.date,
-      branch_id: Number(label.branch_id),
-      label_quantity: Number(label.label_quantity),
-      wrong_labels: Number(label.wrong_labels),
-      coordinates: label.coordinates,
-      vehicle_brand_id: Number(label.vehicle_brand_id),
-      vehicle_model_id: Number(label.vehicle_model_id),
-      vehicle_year: label.vehicle_year,
-      show_vin: label.show_vin,
-      show_plate: label.show_plate,
-      show_logo: label.show_logo,
-      vehicle_vin: label.vehicle_vin,
-      vehicle_plate: label.vehicle_plate,
-      print_type: label.print_type,
-      description: label.description,
-    }));
+    const newLabels = labels.map((label: Label) => {
+      const newLabel: any = {
+        operator_id: label.operator_id ? Number(label.operator_id) : null,
+        date: label.date,
+        branch_id: Number(label.branch_id),
+        label_quantity: Number(label.label_quantity),
+        wrong_labels: Number(label.wrong_labels),
+        coordinates: label.coordinates,
+        vehicle_year: label.vehicle_year,
+        show_vin: label.show_vin,
+        show_plate: label.show_plate,
+        show_logo: label.show_logo,
+        vehicle_vin: label.vehicle_vin,
+        vehicle_plate: label.vehicle_plate,
+        print_type: label.print_type,
+        description: label.description,
+      };
+
+      // Only add `vehicle_brand_id` and `vehicle_model_id` if they exist
+      if (label.vehicle_brand_id) {
+        newLabel.vehicle_brand_id = Number(label.vehicle_brand_id);
+      }
+
+      if (label.vehicle_model_id) {
+        newLabel.vehicle_model_id = Number(label.vehicle_model_id);
+      }
+
+      return newLabel;
+    });
 
     const createdLabels = await prisma.label.createMany({
       data: newLabels,
