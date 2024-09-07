@@ -23,7 +23,7 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
 
     const formattedLabels = labels.map((label) => ({
       id: label.id,
-      operator: label.user.name,
+      operator: label.user?.name,
       operator_id: label.operator_id,
       date: label.date,
       branch_id: label.branch_id,
@@ -33,9 +33,9 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
       label_quantity: label.label_quantity,
       wrong_labels: label.wrong_labels,
       coordinates: label.coordinates,
-      vehicle_brand: label.vehicle_brand.brand,
-      vehicle_model: label.vehicle_model.model,
-      vehicle_logo: label.vehicle_brand.logo,
+      vehicle_brand: label.vehicle_brand?.brand,
+      vehicle_model: label.vehicle_model?.model,
+      vehicle_logo: label.vehicle_brand?.logo,
       vehicle_brand_id: label.vehicle_brand_id,
       vehicle_model_id: label.vehicle_model_id,
       vehicle_year: label.vehicle_year,
@@ -79,8 +79,8 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
 
     const formattedLabels = labels.map((label) => ({
       ...label,
-      vehicle_brand: label.vehicle_brand.brand,
-      vehicle_model: label.vehicle_model.model,
+      vehicle_brand: label.vehicle_brand?.brand,
+      vehicle_model: label.vehicle_model?.model,
     }));
 
     res.status(200).json({ labels: formattedLabels });

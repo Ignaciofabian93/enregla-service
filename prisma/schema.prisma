@@ -79,24 +79,24 @@ model VehicleModels {
 
 model Label {
   id               Int           @id @default(autoincrement())
-  operator_id      Int
+  operator_id      Int?
   date             String
   branch_id        Int
   label_quantity   Int
   wrong_labels     Int
   coordinates      String
-  vehicle_brand_id Int
-  vehicle_model_id Int
-  vehicle_year     String
+  vehicle_brand_id Int?
+  vehicle_model_id Int?
+  vehicle_year     String?
   show_vin         Boolean
-  vehicle_vin      String
+  vehicle_vin      String?
   show_plate       Boolean
-  vehicle_plate    String
+  vehicle_plate    String?
   show_logo        Boolean
-  print_type       String
-  description      String
-  vehicle_brand    VehicleBrands @relation(fields: [vehicle_brand_id], references: [id])
-  vehicle_model    VehicleModels @relation(fields: [vehicle_model_id], references: [id])
+  print_type       String?
+  description      String?
+  vehicle_brand    VehicleBrands? @relation(fields: [vehicle_brand_id], references: [id])
+  vehicle_model    VehicleModels? @relation(fields: [vehicle_model_id], references: [id])
   branch           Branch        @relation(fields: [branch_id], references: [id])
-  user             User          @relation(fields: [operator_id], references: [id])
+  user             User?          @relation(fields: [operator_id], references: [id])
 }
