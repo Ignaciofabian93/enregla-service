@@ -23,6 +23,7 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
 
     const formattedLabels = labels.map((label) => ({
       id: label.id,
+      work_order: label.work_order,
       operator: label.user?.name,
       operator_id: label.operator_id,
       date: label.date,
@@ -101,6 +102,7 @@ export const SaveLabel = async (req: Request, res: Response) => {
     const newLabels = labels.map((label: Label) => {
       const newLabel: any = {
         operator_id: label.operator_id ? Number(label.operator_id) : null,
+        work_order: label.work_order || "",
         date: label.date,
         branch_id: Number(label.branch_id),
         label_quantity: Number(label.label_quantity),

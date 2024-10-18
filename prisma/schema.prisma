@@ -80,6 +80,7 @@ model VehicleModels {
 model Label {
   id               Int           @id @default(autoincrement())
   operator_id      Int?
+  work_order       String?
   date             String
   branch_id        Int
   label_quantity   Int

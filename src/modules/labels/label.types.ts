@@ -1,5 +1,6 @@
 export type Label = {
   id: number;
+  work_order: string;
   label_id: number;
   operator_id: number;
   date: string;
