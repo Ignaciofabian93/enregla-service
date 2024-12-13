@@ -5,86 +5,46 @@ export const GetVehicles = async (req: Request, res: Response) => {
   try {
     const { page, rows } = req.query;
 
-    const count = await prisma.vehicleModels.count();
-    const vehicles = await prisma.vehicleModels.findMany({
-      include: { brand: { select: { brand: true, logo: true } } },
+    const count = await prisma.vehicleBrands.count();
+    const vehicles = await prisma.vehicleBrands.findMany({
       skip: (Number(page) - 1) * Number(rows),
       take: Number(rows),
     });
 
     if (!vehicles) return res.status(404).json({ error: "No se encontraron vehículos" });
 
-    const formattedVehicles = vehicles.map((vehicle) => ({
-      ...vehicle,
-      brand: vehicle.brand.brand,
-      logo: vehicle.brand.logo,
-    }));
-
-    res.status(200).json({ vehicles: formattedVehicles, count });
+    res.status(200).json({ vehicles, count });
   } catch (error) {
     console.error("Error while trying to get vehicles: ", error);
     res.status(500).json({ error });
   }
 };
 
-// For mobile app and web
 export const GetVehicleBrands = async (req: Request, res: Response) => {
   try {
-    const vehicleBrands = await prisma.vehicleBrands.findMany();
+    const vehicles = await prisma.vehicleBrands.findMany();
 
-    if (!vehicleBrands) return res.status(404).json({ error: "No se encontraron vehículos" });
+    if (!vehicles) return res.status(404).json({ error: "No se encontraron vehículos" });
 
-    res.status(200).json({ brands: vehicleBrands });
+    res.status(200).json({ vehicles });
   } catch (error) {
     console.error("Error while trying to get vehicle brands: ", error);
     res.status(500).json({ error });
   }
 };
 
-// For mobile app and web
-export const GetVehicleModels = async (req: Request, res: Response) => {
-  try {
-    const vehicleModels = await prisma.vehicleModels.findMany({
-      include: { brand: { select: { id: true } } },
-    });
-
-    if (!vehicleModels)
-      return res.status(404).json({ error: "No se encontraron modelos de vehículos" });
-
-    const formattedModels = vehicleModels.map((model) => ({
-      ...model,
-      brand_id: model.brand.id,
-    }));
-
-    res.status(200).json({ models: formattedModels });
-  } catch (error) {
-    console.error("Error while trying to get vehicle models: ", error);
-    res.status(500).json({ error });
-  }
-};
-
 export const SaveVehicle = async (req: Request, res: Response) => {
   try {
-    const { model, brand_id, brand, logo } = req.body;
+    const { brand, logo } = req.body;
 
-    let new_brand = await prisma.vehicleBrands.findUnique({ where: { id: brand_id } });
+    const newVehicle = await prisma.vehicleBrands.create({
+      data: { brand, logo },
+    });
 
-    if (!new_brand) {
-      new_brand = await prisma.vehicleBrands.create({ data: { brand, logo } });
-    }
+    if (!newVehicle)
+      return res.status(400).json({ error: "Error al intentar guardar el vehículo" });
 
-    if (new_brand) {
-      const vehicle = await prisma.vehicleModels.create({
-        data: {
-          model,
-          brand: { connect: { id: new_brand.id } },
-        },
-      });
-      if (!vehicle) return res.status(404).json({ error: "No se pudo crear el vehículo" });
-      return res.status(201).json({ vehicle, message: "Vehículo registrado correctamente" });
-    } else {
-      return res.status(404).json({ error: "No se pudo crear el vehículo" });
-    }
+    res.status(201).json({ message: "Vehículo registrado correctamente" });
   } catch (error) {
     console.error("Error while trying to save vehicle: ", error);
     res.status(500).json({ error });
@@ -94,27 +54,18 @@ export const SaveVehicle = async (req: Request, res: Response) => {
 export const UpdateVehicle = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { model, brand_id, logo, brand } = req.body;
+    const { logo, brand } = req.body;
+    console.log(id, brand);
 
-    let updatedBrand;
-    if (brand_id && (brand || logo)) {
-      updatedBrand = await prisma.vehicleBrands.update({
-        where: { id: brand_id },
-        data: { brand, logo },
-      });
-    }
-
-    const vehicle = await prisma.vehicleModels.update({
+    const updatedVehicle = await prisma.vehicleBrands.update({
       where: { id: Number(id) },
-      data: {
-        model,
-        brand: { connect: { id: brand_id } },
-      },
+      data: { brand, logo },
     });
 
-    if (!vehicle) return res.status(404).json({ error: "No se pudo actualizar el vehículo" });
+    if (!updatedVehicle)
+      return res.status(400).json({ error: "Error al intentar actualizar el vehículo" });
 
-    res.status(200).json({ vehicle, message: "Vehículo actualizado correctamente" });
+    res.status(200).json({ message: "Vehículo actualizado correctamente" });
   } catch (error) {
     console.error("Error while trying to update vehicle: ", error);
     res.status(500).json({ error });
@@ -125,7 +76,7 @@ export const DeleteVehicle = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const vehicle = await prisma.vehicleModels.delete({
+    const vehicle = await prisma.vehicleBrands.delete({
       where: { id: Number(id) },
     });
 

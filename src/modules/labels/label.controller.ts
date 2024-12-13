@@ -12,7 +12,6 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
     const labels = await prisma.label.findMany({
       include: {
         vehicle_brand: { select: { brand: true, logo: true } },
-        vehicle_model: { select: { model: true } },
         user: { select: { name: true, email: true } },
         branch: { select: { address: true, agency: true, location: true, telephone: true } },
       },
@@ -35,11 +34,8 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
       wrong_labels: label.wrong_labels,
       coordinates: label.coordinates,
       vehicle_brand: label.vehicle_brand?.brand,
-      vehicle_model: label.vehicle_model?.model,
       vehicle_logo: label.vehicle_brand?.logo,
       vehicle_brand_id: label.vehicle_brand_id,
-      vehicle_model_id: label.vehicle_model_id,
-      vehicle_year: label.vehicle_year,
       show_vin: label.show_vin,
       vehicle_vin: label.vehicle_vin,
       show_plate: label.show_plate,
@@ -71,7 +67,6 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
       include: {
         branch: { select: { id: true, address: true, location: true } },
         vehicle_brand: { select: { brand: true } },
-        vehicle_model: { select: { model: true } },
       },
       where: whereClause,
     });
@@ -81,7 +76,6 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
     const formattedLabels = labels.map((label) => ({
       ...label,
       vehicle_brand: label.vehicle_brand?.brand,
-      vehicle_model: label.vehicle_model?.model,
     }));
 
     res.status(200).json({ labels: formattedLabels });
@@ -118,13 +112,9 @@ export const SaveLabel = async (req: Request, res: Response) => {
         description: label.description,
       };
 
-      // Only add `vehicle_brand_id` and `vehicle_model_id` if they exist
+      // Only add `vehicle_brand_id` if they exist
       if (label.vehicle_brand_id) {
         newLabel.vehicle_brand_id = Number(label.vehicle_brand_id);
-      }
-
-      if (label.vehicle_model_id) {
-        newLabel.vehicle_model_id = Number(label.vehicle_model_id);
       }
 
       return newLabel;

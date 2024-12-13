@@ -4,7 +4,6 @@ import {
   GetVehicles,
   SaveVehicle,
   GetVehicleBrands,
-  GetVehicleModels,
   UpdateVehicle,
 } from "./vehicle.controller";
 import { IsAuthenticated, IsAuthorized } from "../../middlewares/session";
@@ -20,6 +19,5 @@ vehicle
   .put(IsAuthenticated, IsAuthorized, UpdateVehicle)
   .delete(IsAuthenticated, IsAuthorized, DeleteVehicle);
 vehicle.route("/vehicle/brand").get(IsAuthenticated, GetVehicleBrands);
-vehicle.route("/vehicle/model").get(IsAuthenticated, GetVehicleModels);
 
 export default vehicle;

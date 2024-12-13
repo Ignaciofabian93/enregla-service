@@ -29,7 +29,10 @@ export const Auth = async (req: Request, res: Response) => {
 
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string);
 
-    return res.status(200).json({ user, token });
+    const saveToken = await prisma.session.create({ data: { user_id: user.id, token } });
+    if (!saveToken) return res.status(400).json({ error: "Error al intentar iniciar la sesion" });
+
+    res.status(200).json({ user, token });
   } catch (error) {
     console.error("Error while trying to authenticate user: ", error);
     res.status(500).json({ error: error });
@@ -40,7 +43,8 @@ export const Auth = async (req: Request, res: Response) => {
 export const GetMe = async (req: CustomRequest, res: Response) => {
   try {
     const { user } = req;
-    return res.status(200).json({ user });
+    if (!user) return res.status(400).json({ error: "Usuario no encontrado" });
+    res.status(200).json({ user });
   } catch (error) {
     console.error("Error while getting user: ", error);
     res.status(500).json({ error: error });

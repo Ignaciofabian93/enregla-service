@@ -50,35 +50,34 @@ model Role {
 }
 
 model User {
-  id        Int     @id @default(autoincrement())
-  name      String  @db.VarChar(250)
-  email     String  @unique @db.VarChar(250)
-  password  String  @db.VarChar(250)
+  id        Int       @id @default(autoincrement())
+  name      String    @db.VarChar(250)
+  email     String    @unique @db.VarChar(250)
+  password  String    @db.VarChar(250)
   branch_id Int
   role_id   Int
   labels    Label[]
-  branch    Branch  @relation(fields: [branch_id], references: [id])
-  role      Role    @relation(fields: [role_id], references: [id])
+  branch    Branch    @relation(fields: [branch_id], references: [id])
+  role      Role      @relation(fields: [role_id], references: [id])
+  sessions  Session[]
+}
+
+model Session {
+  id      Int    @id @default(autoincrement())
+  user_id Int
+  token   String
+  user    User   @relation(fields: [user_id], references: [id])
 }
 
 model VehicleBrands {
-  id     Int             @id @default(autoincrement())
-  brand  String          @unique @db.VarChar(250)
+  id     Int     @id @default(autoincrement())
+  brand  String  @unique @db.VarChar(250)
   logo   String
-  models VehicleModels[]
   labels Label[]
 }
 
-model VehicleModels {
-  id       Int           @id @default(autoincrement())
-  model    String        @db.VarChar(250)
-  brand_id Int
-  brand    VehicleBrands @relation(fields: [brand_id], references: [id])
-  labels   Label[]
-}
-
 model Label {
-  id               Int           @id @default(autoincrement())
+  id               Int            @id @default(autoincrement())
   operator_id      Int?
   work_order       String?
   date             String
@@ -87,8 +86,6 @@ model Label {
   wrong_labels     Int
   coordinates      String
   vehicle_brand_id Int?
-  vehicle_model_id Int?
-  vehicle_year     String?
   show_vin         Boolean
   vehicle_vin      String?
   show_plate       Boolean
@@ -97,7 +94,6 @@ model Label {
   print_type       String?
   description      String?
   vehicle_brand    VehicleBrands? @relation(fields: [vehicle_brand_id], references: [id])
-  vehicle_model    VehicleModels? @relation(fields: [vehicle_model_id], references: [id])
-  branch           Branch        @relation(fields: [branch_id], references: [id])
+  branch           Branch         @relation(fields: [branch_id], references: [id])
   user             User?          @relation(fields: [operator_id], references: [id])
 }
