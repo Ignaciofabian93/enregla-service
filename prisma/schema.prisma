@@ -64,12 +64,12 @@ model User {
 
 model Session {
   id      Int    @id @default(autoincrement())
-  user_id Int
-  token   String
+  user_id Int    @unique
+  token   String @unique
   user    User   @relation(fields: [user_id], references: [id])
 }
 
-model VehicleBrands {
+model Vehicles {
   id     Int     @id @default(autoincrement())
   brand  String  @unique @db.VarChar(250)
   logo   String
@@ -85,15 +85,14 @@ model Label {
   label_quantity   Int
   wrong_labels     Int
   coordinates      String
-  vehicle_brand_id Int?
+  vehicle_id       Int
   show_vin         Boolean
   vehicle_vin      String?
   show_plate       Boolean
-  vehicle_plate    String?
+  vehicle_plate    String
   show_logo        Boolean
-  print_type       String?
   description      String?
-  vehicle_brand    VehicleBrands? @relation(fields: [vehicle_brand_id], references: [id])
+  vehicle          Vehicles?      @relation(fields: [vehicle_id], references: [id])
   branch           Branch         @relation(fields: [branch_id], references: [id])
   user             User?          @relation(fields: [operator_id], references: [id])
 }

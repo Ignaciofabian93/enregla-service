@@ -29,8 +29,17 @@ export const Auth = async (req: Request, res: Response) => {
 
     const token = sign({ id: user.id }, process.env.JWT_SECRET as string);
 
-    const saveToken = await prisma.session.create({ data: { user_id: user.id, token } });
-    if (!saveToken) return res.status(400).json({ error: "Error al intentar iniciar la sesion" });
+    const session = await prisma.session.findUnique({ where: { user_id: user.id } });
+    if (session) {
+      const saveToken = await prisma.session.update({
+        where: { user_id: user.id },
+        data: { token },
+      });
+      if (!saveToken) return res.status(400).json({ error: "Error al intentar iniciar la sesion" });
+    } else {
+      const saveToken = await prisma.session.create({ data: { user_id: user.id, token } });
+      if (!saveToken) return res.status(400).json({ error: "Error al intentar iniciar la sesion" });
+    }
 
     res.status(200).json({ user, token });
   } catch (error) {

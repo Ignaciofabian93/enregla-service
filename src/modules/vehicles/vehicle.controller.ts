@@ -5,8 +5,8 @@ export const GetVehicles = async (req: Request, res: Response) => {
   try {
     const { page, rows } = req.query;
 
-    const count = await prisma.vehicleBrands.count();
-    const vehicles = await prisma.vehicleBrands.findMany({
+    const count = await prisma.vehicles.count();
+    const vehicles = await prisma.vehicles.findMany({
       skip: (Number(page) - 1) * Number(rows),
       take: Number(rows),
     });
@@ -22,7 +22,7 @@ export const GetVehicles = async (req: Request, res: Response) => {
 
 export const GetVehicleBrands = async (req: Request, res: Response) => {
   try {
-    const vehicles = await prisma.vehicleBrands.findMany();
+    const vehicles = await prisma.vehicles.findMany();
 
     if (!vehicles) return res.status(404).json({ error: "No se encontraron vehículos" });
 
@@ -37,7 +37,7 @@ export const SaveVehicle = async (req: Request, res: Response) => {
   try {
     const { brand, logo } = req.body;
 
-    const newVehicle = await prisma.vehicleBrands.create({
+    const newVehicle = await prisma.vehicles.create({
       data: { brand, logo },
     });
 
@@ -57,7 +57,7 @@ export const UpdateVehicle = async (req: Request, res: Response) => {
     const { logo, brand } = req.body;
     console.log(id, brand);
 
-    const updatedVehicle = await prisma.vehicleBrands.update({
+    const updatedVehicle = await prisma.vehicles.update({
       where: { id: Number(id) },
       data: { brand, logo },
     });
@@ -76,7 +76,7 @@ export const DeleteVehicle = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    const vehicle = await prisma.vehicleBrands.delete({
+    const vehicle = await prisma.vehicles.delete({
       where: { id: Number(id) },
     });
 

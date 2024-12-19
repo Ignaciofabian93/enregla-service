@@ -11,7 +11,7 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
 
     const labels = await prisma.label.findMany({
       include: {
-        vehicle_brand: { select: { brand: true, logo: true } },
+        vehicle: { select: { brand: true, logo: true } },
         user: { select: { name: true, email: true } },
         branch: { select: { address: true, agency: true, location: true, telephone: true } },
       },
@@ -33,15 +33,12 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
       label_quantity: label.label_quantity,
       wrong_labels: label.wrong_labels,
       coordinates: label.coordinates,
-      vehicle_brand: label.vehicle_brand?.brand,
-      vehicle_logo: label.vehicle_brand?.logo,
-      vehicle_brand_id: label.vehicle_brand_id,
+      vehicle_id: label.vehicle_id,
       show_vin: label.show_vin,
       vehicle_vin: label.vehicle_vin,
       show_plate: label.show_plate,
       vehicle_plate: label.vehicle_plate,
       show_logo: label.show_logo,
-      print_type: label.print_type,
       description: label.description,
     }));
 
@@ -66,7 +63,7 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
       orderBy: { date: "desc" },
       include: {
         branch: { select: { id: true, address: true, location: true } },
-        vehicle_brand: { select: { brand: true } },
+        vehicle: { select: { brand: true } },
       },
       where: whereClause,
     });
@@ -75,7 +72,7 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
 
     const formattedLabels = labels.map((label) => ({
       ...label,
-      vehicle_brand: label.vehicle_brand?.brand,
+      vehicle_brand: label.vehicle?.brand,
     }));
 
     res.status(200).json({ labels: formattedLabels });
