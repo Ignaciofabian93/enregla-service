@@ -9,3 +9,6 @@ services:
       - .env
     ports:
       - "4000:4000"
+    volumes:
+      - /etc/letsencrypt/live/www.enreglaintegral.cl/fullchain.pem:/etc/ssl/certs/fullchain.pem:ro
+      - /etc/letsencrypt/live/www.enreglaintegral.cl/privkey.pem:/etc/ssl/private/privkey.pem:ro
