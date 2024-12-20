@@ -27,13 +27,11 @@ export const GetLabels = async (req: CustomRequest, res: Response) => {
       operator_id: label.operator_id,
       date: label.date,
       branch_id: label.branch_id,
-      branch_address: label.branch.address,
-      branch_location: label.branch.location,
-      branch_telephone: label.branch.telephone,
       label_quantity: label.label_quantity,
       wrong_labels: label.wrong_labels,
       coordinates: label.coordinates,
       vehicle_id: label.vehicle_id,
+      vehicle_brand: label.vehicle?.brand,
       show_vin: label.show_vin,
       vehicle_vin: label.vehicle_vin,
       show_plate: label.show_plate,
@@ -82,39 +80,32 @@ export const GetAllLabels = async (req: CustomRequest, res: Response) => {
   }
 };
 
-export const SaveLabel = async (req: Request, res: Response) => {
+export const SaveLabel = async (req: CustomRequest, res: Response) => {
   try {
     const { labels } = req.body;
+    const { user } = req;
 
     if (!labels || labels.length === 0) {
       return res.status(400).json({ error: "No hay etiquetas para guardar" });
     }
 
     const newLabels = labels.map((label: Label) => {
-      const newLabel: any = {
+      return {
         operator_id: label.operator_id ? Number(label.operator_id) : null,
         work_order: label.work_order || "",
         date: label.date,
-        branch_id: Number(label.branch_id),
+        branch_id: Number(label.branch_id) || Number(user?.branch_id),
         label_quantity: Number(label.label_quantity),
         wrong_labels: Number(label.wrong_labels),
         coordinates: label.coordinates,
-        vehicle_year: label.vehicle_year,
         show_vin: label.show_vin,
         show_plate: label.show_plate,
         show_logo: label.show_logo,
+        vehicle_id: label.vehicle_id ?? null,
         vehicle_vin: label.vehicle_vin,
         vehicle_plate: label.vehicle_plate,
-        print_type: label.print_type,
         description: label.description,
       };
-
-      // Only add `vehicle_brand_id` if they exist
-      if (label.vehicle_brand_id) {
-        newLabel.vehicle_brand_id = Number(label.vehicle_brand_id);
-      }
-
-      return newLabel;
     });
 
     const createdLabels = await prisma.label.createMany({

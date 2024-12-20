@@ -85,7 +85,7 @@ model Label {
   label_quantity   Int
   wrong_labels     Int
   coordinates      String
-  vehicle_id       Int
+  vehicle_id       Int?
   show_vin         Boolean
   vehicle_vin      String?
   show_plate       Boolean
